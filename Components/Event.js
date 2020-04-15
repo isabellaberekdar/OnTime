@@ -20,7 +20,7 @@ const Event = props => {
 
   const { userId } = props.userId;
   return (
-    <Card>
+    <Card style={styles.event}>
       <Card.Title title={eventName} />
       <Card.Content>
         <Text>{time}</Text>
@@ -34,7 +34,9 @@ const Event = props => {
 };
 
 const styles = StyleSheet.create({
-  event: {},
+  event: {
+    marginVertical: '1%'
+  },
 });
 
 export default Event;
