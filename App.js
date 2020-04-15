@@ -13,7 +13,7 @@ import {
   Event,
   ForgotPassword,
   Invitations,
-  Notifications,
+  Notifications,k,hjkmj
 } from './Screens';
 
 const Stack = createStackNavigator();
