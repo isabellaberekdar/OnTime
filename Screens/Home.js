@@ -1,33 +1,35 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Text } from 'react-native';
 import { Button } from 'react-native-paper';
-import Event from '../Components/Event';
-import events from '../eventSampleData';
-import axios from 'axios';
+import { Event } from '../Components';
+import { connect } from 'react-redux';
+import { getEventsThunk } from '../Store/utilities/events';
 
-const Home = ({ navigation }) => {
-  const getEvents = async () => {};
-
-  return (
-    <View style={styles.homeContainer}>
-      <Text style={styles.welcomeText}>Welcome back, {'Name'}</Text>
-      <Text style={styles.text}>Your Events:</Text>
-      <Button onPress={() => navigation.navigate('CreateEvent')}>
-        + Add Event
-      </Button>
-      <FlatList
-        data={events}
-        renderItem={event => <Event event={event.item} userId={1} />}
-        keyExtractor={event => event.code}
-        style={styles.eventsList}
-        showsVerticalScrollIndicator={false}
-      />
-      <Button onPress={() => navigation.navigate('Search')}>
-        Search Events
-      </Button>
-    </View>
-  );
-};
+class Home extends React.Component {
+  getEvents = async () => {};
+  render() {
+    const { events } = this.props;
+    return (
+      <View style={styles.homeContainer}>
+        <Text style={styles.welcomeText}>Welcome back, {'Name'}</Text>
+        <Text style={styles.text}>Your Events:</Text>
+        <Button onPress={() => navigation.navigate('CreateEvent')}>
+          + Add Event
+        </Button>
+        <FlatList
+          data={events}
+          renderItem={event => <Event event={event.item} userId={1} />}
+          keyExtractor={event => event.code}
+          style={styles.eventsList}
+          showsVerticalScrollIndicator={false}
+        />
+        <Button onPress={() => navigation.navigate('Search')}>
+          Search Events
+        </Button>
+      </View>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   homeContainer: {
@@ -48,4 +50,20 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+const mapState = state => {
+  const { events } = state;
+  return {
+    events: events.events,
+  };
+};
+
+const mapDispatch = dispatch => {
+  return {
+    getEvents: () => dispatch(getEventsThunk()),
+  };
+};
+
+export default connect(
+  mapState,
+  mapDispatch,
+)(Home);
