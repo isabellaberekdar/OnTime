@@ -14,6 +14,7 @@ import {
   ForgotPassword,
   Invitations,
   Notifications,
+  Search
 } from './Screens';
 
 const Stack = createStackNavigator();
@@ -34,7 +35,8 @@ function App() {
         <Stack.Screen name="Event" component={Event} /> 
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} /> 
         <Stack.Screen name="Invitations" component={Invitations} /> 
-        <Stack.Screen name="Notifications" component={Notifications} />        
+        <Stack.Screen name="Notifications" component={Notifications} />  
+        <Stack.Screen name="Search" component={Search}      
         */}
         </Stack.Navigator>
       </NavigationContainer>

@@ -3,9 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { connect } from 'react-redux';
 import { logInUserThunk } from '../Store/utilities/users';
-import { withNavigation } from 'react-navigation';
-
-import axios from 'axios';
 
 class Login extends React.Component {
   state = {
