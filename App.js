@@ -23,11 +23,11 @@ function App() {
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Home"
+          initialRouteName="Login"
           screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={Home} />
-          {/* 
-        <Stack.Screen name="Login" component={Login} /> 
+          <Stack.Screen name="Login" component={Login} />
+          {/*
         <Stack.Screen name="Register" component={Register} /> 
         <Stack.Screen name="CreateEvent" component={CreateEvent} /> 
         <Stack.Screen name="EditEvent" component={EditEvent} /> 
