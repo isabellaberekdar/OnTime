@@ -6,8 +6,8 @@ import { logInUserThunk } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "test@gmail.com",
-    password: "password",
+    email: "",
+    password: "",
   }
 
   //TODO
@@ -29,13 +29,7 @@ class Login extends React.Component {
   }
 
   render() {
-    const { userId, navigation } = this.props
     const { email, password } = this.state
-
-    if (userId) {
-      navigation.navigate('Home')
-    }
-
     return (
       <View style={styles.container}>
         <TextInput

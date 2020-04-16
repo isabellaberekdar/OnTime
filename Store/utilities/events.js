@@ -22,8 +22,6 @@ export const getEventsThunk = userId => async dispatch => {
       `/events/${userId}`
     );
     */
-
-    // incorrect credentials or server-side issue
     dispatch(getEvents(events));
   } catch (error) {
     console.log(error);

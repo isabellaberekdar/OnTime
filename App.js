@@ -15,16 +15,22 @@ import {
   ForgotPassword,
   Invitations,
   Notifications,
+  Search
 } from "./screens"
 
 const Stack = createStackNavigator()
 
 function App() {
+  // If the user is logged in, their id will be saved in the redux store
+  const userId = store.getState().userInfo.id
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName='Login' screenOptions={{ headerShown: false }}>
+          <Stack.Navigator
+            initialRouteName={userId ? "Login" : "Home"}
+            screenOptions={{ headerShown: false }}
+          >
             <Stack.Screen name='Home' component={Home} />
             <Stack.Screen name='Login' component={Login} />
             {/*  

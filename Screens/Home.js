@@ -7,7 +7,7 @@ import { getEventsThunk } from "../store/utilities/events"
 
 class Home extends React.Component {
   render() {
-    const { events, firstName } = this.props
+    const { events, firstName, id } = this.props
     return (
       <View style={styles.homeContainer}>
         <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
@@ -15,7 +15,7 @@ class Home extends React.Component {
         <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
         <FlatList
           data={events}
-          renderItem={(event) => <Event event={event.item} userId={1} />}
+          renderItem={(event) => <Event event={event.item} userId={id} />}
           keyExtractor={(event) => event.code}
           style={styles.eventsList}
           showsVerticalScrollIndicator={false}
@@ -50,7 +50,7 @@ const mapState = (state) => {
   const { events } = state.events
   const { email, id, firstName, lastName } = state.userInfo
   return {
-    events: events.events,
+    events: events,
     email: email,
     id: id,
     firstName: firstName,
