@@ -1,35 +1,36 @@
-import axios from 'axios';
-import events from '../../eventSampleData';
+import axios from "axios"
+import events from "../../eventSampleData"
 
 // ACTION TYPES
-const GET_EVENTS = 'GET_EVENTS';
-const EDIT_EVENT = 'EDIT_EVENT'
-const CREATE_EVENT = 'CREATE_EVENT'
+const GET_EVENTS = "GET_EVENTS"
+const EDIT_EVENT = "EDIT_EVENT"
+const CREATE_EVENT = "CREATE_EVENT"
 
 // ACTION CREATORS
-const getEvents = eventsList => {
+const getEvents = (eventsList) => {
   return {
     type: GET_EVENTS,
     payload: eventsList,
-  };
-};
+  }
+}
 
 // THUNK CREATORS
-export const getEventsThunk = userId => async dispatch => {
+export const getEventsThunk = (userId) => async (dispatch) => {
   try {
     /*     
     const { data } = await axios.get(
       `/events/${userId}`
     );
     */
-    dispatch(getEvents(events));
+    // currently uses a hardcoded events list
+    dispatch(getEvents(events))
   } catch (error) {
-    console.log(error);
+    console.log(error)
   }
-};
+}
 
 const initialState = {
-  events: events
+  events: events,
 }
 // REDUCER
 const eventsReducer = (state = initialState, action) => {
@@ -38,10 +39,10 @@ const eventsReducer = (state = initialState, action) => {
       return {
         ...state,
         events: action.payload,
-      };
+      }
     default:
-      return state;
+      return state
   }
-};
+}
 
-export default eventsReducer;
+export default eventsReducer

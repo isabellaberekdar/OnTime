@@ -1,8 +1,9 @@
-import React from 'react';
-import { StyleSheet, Text } from 'react-native';
-import { Button, Card } from 'react-native-paper';
+import React from "react"
+import { StyleSheet, Text } from "react-native"
+import { Button, Card } from "react-native-paper"
+import { useNavigation } from "@react-navigation/native"
 
-const Event = props => {
+const Event = (props) => {
   const {
     id,
     ownerId,
@@ -16,27 +17,30 @@ const Event = props => {
     lat,
     lng,
     code,
-  } = props.event;
+  } = props.event
+  const { userId } = props
+  const navigation = useNavigation()
 
-  const { userId } = props.userId;
   return (
-    <Card style={styles.event}>
+    <Card style={styles.event} onPress={() => navigation.navigate("Event", props.event)}>
       <Card.Title title={eventName} />
       <Card.Content>
         <Text>{time}</Text>
         <Text>{weeklySchedule}</Text>
       </Card.Content>
       <Card.Actions>
-        {ownerId === userId && <Button>Edit Event</Button>}
+        {ownerId === userId && (
+          <Button onPress={() => navigation.navigate("EditEvent", props.event)}>Edit Event</Button>
+        )}
       </Card.Actions>
     </Card>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   event: {
-    marginVertical: '1%'
+    marginVertical: "1%",
   },
-});
+})
 
-export default Event;
+export default Event

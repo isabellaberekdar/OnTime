@@ -4,26 +4,25 @@ import { Button } from "react-native-paper"
 import { Event } from "../components"
 import { connect } from "react-redux"
 import { getEventsThunk } from "../store/utilities/events"
+import { binaryToStringSchedule } from "../utilities"
 
-class Home extends React.Component {
-  render() {
-    const { events, firstName, id } = this.props
-    return (
-      <View style={styles.homeContainer}>
-        <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
-        <Text style={styles.text}>Your Events:</Text>
-        <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
-        <FlatList
-          data={events}
-          renderItem={(event) => <Event event={event.item} userId={id} />}
-          keyExtractor={(event) => event.code}
-          style={styles.eventsList}
-          showsVerticalScrollIndicator={false}
-        />
-        <Button onPress={() => navigation.navigate("Search")}>Search Events</Button>
-      </View>
-    )
-  }
+const Home = (props, {navigation}) => {
+  const { events, firstName, id } = props
+  return (
+    <View style={styles.homeContainer}>
+      <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
+      <Text style={styles.text}>Your Events:</Text>
+      <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
+      <FlatList
+        data={events}
+        renderItem={(event) => <Event event={event.item} userId={id} />}
+        keyExtractor={(event) => event.code}
+        style={styles.eventsList}
+        showsVerticalScrollIndicator={false}
+      />
+      <Button onPress={() => navigation.navigate("Search")}>Search Events</Button>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
