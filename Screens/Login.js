@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, TextInput } from 'react-native-paper';
 import { connect } from 'react-redux';
-import { logInUserThunk } from '../Store/utilities/users';
+import { logInUserThunk } from '../store/utilities/users';
 
 class Login extends React.Component {
   state = {
