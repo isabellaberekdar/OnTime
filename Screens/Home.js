@@ -1,9 +1,9 @@
 import React from 'react';
 import { View, FlatList, StyleSheet, Text } from 'react-native';
 import { Button } from 'react-native-paper';
-import { Event } from '../Components';
+import { Event } from '../components';
 import { connect } from 'react-redux';
-import { getEventsThunk } from '../Store/utilities/events';
+import { getEventsThunk } from '../store/utilities/events';
 
 class Home extends React.Component {
   getEvents = async () => {};
@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingHorizontal: '5%',
+    paddingTop: '10%'
   },
   eventsList: {
     height: '93%',

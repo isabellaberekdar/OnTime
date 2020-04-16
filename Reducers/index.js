@@ -1,2 +1,2 @@
-export { default as userInfo } from '../Store/utilities/users';
-export { default as events } from '../Store/utilities/events';
+export { default as userInfo } from '../store/utilities/users';
+export { default as events } from '../store/utilities/events';
