@@ -2,6 +2,7 @@ import React from "react"
 import { StyleSheet, Text } from "react-native"
 import { Button, Card } from "react-native-paper"
 import { useNavigation } from "@react-navigation/native"
+import { binaryToStringSchedule, convert24HourTime } from "../utilities"
 
 const Event = (props) => {
   const {
@@ -25,8 +26,8 @@ const Event = (props) => {
     <Card style={styles.event} onPress={() => navigation.navigate("Event", props.event)}>
       <Card.Title title={eventName} />
       <Card.Content>
-        <Text>{time}</Text>
-        <Text>{weeklySchedule}</Text>
+        <Text>{convert24HourTime(time)}</Text>
+        <Text>{binaryToStringSchedule(weeklySchedule)}</Text>
       </Card.Content>
       <Card.Actions>
         {ownerId === userId && (

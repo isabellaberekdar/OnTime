@@ -1,6 +1,6 @@
 // Convert weekly schedule from binary string to a list of days. Ex: "1000110" -> "Sun Thu Fri"
 function binaryToStringSchedule(binarySchedule) {
-  daysList = ""
+  let daysList = ""
   if (binarySchedule[0] === "1") {
     daysList += "Sun "
   }
@@ -28,18 +28,19 @@ function binaryToStringSchedule(binarySchedule) {
 // Convert a string like "10:11:00" to "10:11 AM"
 function convert24HourTime(timeString) {
   // Remove ":00" from end of string
-  time = timeString.substring(0, 5)
-  hours = time.substring(0, 2)
-  minutes = time.substring(3, 5)
+  let time = timeString.substring(0, 5)
+  const hours = time.substring(0, 2)
+  const minutes = time.substring(3, 5)
 
   // This needs to be tested
   if (hours > 12) {
     time = (hours % 12) + ":" + minutes + " PM"
-  } else if (hours == 0 || hours == 12) {
-    time = "12:" + minutes + " PM"
+  } else if (hours == 0) {
+    time = "12:" + minutes + " AM"
   } else {
     time = hours + ":" + minutes + " AM"
   }
+  return time
 }
 
 export { binaryToStringSchedule, convert24HourTime }

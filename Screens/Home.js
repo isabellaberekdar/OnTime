@@ -4,7 +4,6 @@ import { Button } from "react-native-paper"
 import { Event } from "../components"
 import { connect } from "react-redux"
 import { getEventsThunk } from "../store/utilities/events"
-import { binaryToStringSchedule } from "../utilities"
 
 const Home = (props, {navigation}) => {
   const { events, firstName, id } = props
