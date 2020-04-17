@@ -25,16 +25,8 @@ export const logInUserThunk = (email, password) => async (dispatch) => {
       "https://fair-hallway-265819.appspot.com/api/login",
       credentials
     )
-    /* const { firstName, lastName } = data.userInfo
-    const { email, id } = data.user
 
-    const userInfo = {
-      firstname: firstName,
-      lastName: lastname,
-      email: email,
-      id: id,
-    } */
-    // incorrect credentials or server-side issue
+    // TODO: needs error handling for incorrect credentials or server-side issue
     dispatch(logInUser(data))
   } catch (error) {
     console.log(error)
