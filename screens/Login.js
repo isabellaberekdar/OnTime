@@ -6,8 +6,8 @@ import { logInUserThunk } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "test@gmail.com",
-    password: "password",
+    email: "",
+    password: "",
   }
 
   //TODO
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
 })
 
 const mapState = (state) => {
-  const  id  = state?.userInfo?.id
+  const  id = state?.userInfo?.id
   return {
     userId: id,
   }

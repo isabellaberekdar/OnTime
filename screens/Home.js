@@ -6,23 +6,24 @@ import { connect } from "react-redux"
 import { getEventsThunk } from "../store/utilities/events"
 import { PURGE } from "redux-persist"
 const Home = (props, { navigation }) => {
-  const { events, firstName } = props
+  const { events, firstName, id } = props
+  
   const logout = () => {
     const { dispatch, navigation } = props
+
     navigation.navigate("Login")
     dispatch({
       type: PURGE,
-      key: "root", // Whatever you chose for the "key" value when initializing redux-persist in the **persistCombineReducers** method - e.g. "root"
-      result: () => null, // Func expected on the submitted action.
+      key: "root",
+      result: () => null, // Function expected on the submitted action.
     })
   }
-  console.log(props)
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
       <Text style={styles.text}>Your Events:</Text>
       <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
-     {/*  {events ? (
+      {events ? (
         <FlatList
           data={events}
           renderItem={event => <Event event={event.item} userId={id} />}
@@ -32,7 +33,7 @@ const Home = (props, { navigation }) => {
         />
       ) : (
         <Text>You have no upcoming events.</Text>
-      )} */}
+      )}
 
       <Button onPress={() => /*  navigation.navigate("Search") */ logout()}>Search Events</Button>
     </View>
@@ -66,12 +67,14 @@ const mapState = state => {
     firstName,
     lastName = null
   if (state) {
-    events = state.events
-    firstName = state.firstName
+    events = state.events.events
+    firstName = state.userInfo.firstName
+    id = state.userInfo.id
   }
   return {
     events: events,
     firstName: firstName,
+    id: id,
   }
 }
 

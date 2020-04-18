@@ -10,6 +10,7 @@ import * as reducers from "../reducers"
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
+  whitelist: ['userInfo', 'events']
 }
 
 export const logout = () => {
