@@ -20,10 +20,10 @@ class Login extends React.Component {
     return true
   }
 
-  logIn = (email, password) => {
+  logIn = async (email, password) => {
     const { logInUser, navigation } = this.props
     if (this.validEmail && this.validPassword) {
-      logInUser(email, password)
+      await logInUser(email, password)
       navigation.navigate("Home")
     }
   }

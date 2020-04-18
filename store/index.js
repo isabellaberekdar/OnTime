@@ -8,7 +8,8 @@ import * as reducers from "../reducers"
 
 const persistConfig = {
   key: "root",
-  storage: AsyncStorage
+  storage: AsyncStorage,
+  whitelist: ['userInfo']
 }
 const rootReducer = combineReducers(reducers)
 
