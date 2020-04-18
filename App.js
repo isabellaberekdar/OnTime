@@ -31,9 +31,8 @@ function App() {
           >
             <Stack.Screen name='Home' component={Home} />
             <Stack.Screen name='Login' component={Login} />
-            {/*  
             <Stack.Screen name="Register" component={Register} /> 
-            <Stack.Screen name="CreateEvent" component={CreateEvent} /> 
+            {/*<Stack.Screen name="CreateEvent" component={CreateEvent} /> 
             <Stack.Screen name="EditEvent" component={EditEvent} /> 
             <Stack.Screen name="Event" component={Event} /> 
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} /> 
