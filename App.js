@@ -21,14 +21,12 @@ import {
 const Stack = createStackNavigator()
 
 function App() {
-  // If the user is logged in, their id will be saved in the redux store
-  const userId = store.getState().userInfo.id
   return (
     <Provider store={store}>
       <PersistGate persistor={persistor} loading={null}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName={userId ? "Login" : "Home"}
+            initialRouteName={"Login"}
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name='Home' component={Home} />
