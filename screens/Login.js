@@ -6,8 +6,8 @@ import { logInUserThunk } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "",
-    password: "",
+    email: "test@gmail.com",
+    password: "password",
   }
 
   //TODO
@@ -20,10 +20,10 @@ class Login extends React.Component {
     return true
   }
 
-  logIn = (email, password) => {
+  logIn = async (email, password) => {
     const { logInUser, navigation } = this.props
     if (this.validEmail && this.validPassword) {
-      logInUser(email, password)
+      await logInUser(email, password)
       navigation.navigate("Home")
     }
   }
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
 })
 
 const mapState = (state) => {
-  const { id } = state.userInfo
+  const  id  = state?.userInfo?.id
   return {
     userId: id,
   }

@@ -17,13 +17,13 @@ import {
   Notifications,
   Search
 } from "./screens"
-
+import {View, Text} from 'react-native'
 const Stack = createStackNavigator()
 
 function App() {
   return (
     <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
+      <PersistGate persistor={persistor} loading={<View><Text>Loading...</Text></View>}>
         <NavigationContainer>
           <Stack.Navigator
             initialRouteName={"Login"}

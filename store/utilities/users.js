@@ -25,7 +25,7 @@ export const logInUserThunk = (email, password) => async (dispatch) => {
       "https://fair-hallway-265819.appspot.com/api/login",
       credentials
     )
-
+      console.log(data)
     // TODO: needs error handling for incorrect credentials or server-side issue
     dispatch(logInUser(data))
   } catch (error) {
@@ -39,6 +39,7 @@ const reducer = (state = {}, action) => {
     case LOG_IN_USER:
       const { firstName, lastName } = action.payload.userInfo
       const { email, id } = action.payload.user
+      console.log('updating state')
       return {
         ...state,
         firstName: firstName,
