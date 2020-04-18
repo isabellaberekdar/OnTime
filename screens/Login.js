@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
 })
 
 const mapState = (state) => {
-  const { id } = state.userInfo
+  const  id = state?.userInfo?.id
   return {
     userId: id,
   }
