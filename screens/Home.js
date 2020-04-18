@@ -4,9 +4,18 @@ import { Button } from "react-native-paper"
 import { Event } from "../components"
 import { connect } from "react-redux"
 import { getEventsThunk } from "../store/utilities/events"
+import { PURGE } from "redux-persist"
 
-const Home = (props, {navigation}) => {
+const Home = (props, { navigation }) => {
   const { events, firstName, id } = props
+  const logout = () => {
+    
+    dispatch({
+      type: PURGE,
+      key: "root", // Whatever you chose for the "key" value when initializing redux-persist in the **persistCombineReducers** method - e.g. "root"
+      result: () => null, // Func expected on the submitted action.
+    })
+  }
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
@@ -14,12 +23,12 @@ const Home = (props, {navigation}) => {
       <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
       <FlatList
         data={events}
-        renderItem={(event) => <Event event={event.item} userId={id} />}
-        keyExtractor={(event) => event.code}
+        renderItem={event => <Event event={event.item} userId={id} />}
+        keyExtractor={event => event.code}
         style={styles.eventsList}
         showsVerticalScrollIndicator={false}
       />
-      <Button onPress={() => navigation.navigate("Search")}>Search Events</Button>
+      <Button onPress={() =>/*  navigation.navigate("Search") */logout()}>Search Events</Button>
     </View>
   )
 }
@@ -44,7 +53,7 @@ const styles = StyleSheet.create({
   },
 })
 
-const mapState = (state) => {
+const mapState = state => {
   const { events } = state.events
   const { email, id, firstName, lastName } = state.userInfo
   return {
@@ -56,9 +65,10 @@ const mapState = (state) => {
   }
 }
 
-const mapDispatch = (dispatch) => {
+const mapDispatch = dispatch => {
   return {
-    getEvents: () => dispatch(getEventsThunk()),
+    dispatch
+    /*  getEvents: () => dispatch(getEventsThunk()), */
   }
 }
 
