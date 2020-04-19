@@ -1,9 +1,15 @@
 import React from "react"
 import { View, StyleSheet } from "react-native"
 import { Button } from "react-native-paper"
+import { connect } from "react-redux"
 
 const Start = props => {
-  const { navigation } = props
+  const { navigation, userLoggedIn } = props
+
+  if (userLoggedIn) {
+    navigation.navigate("Home")
+  }
+
   return (
     <View style={styles.startContainer}>
       <Button onPress={() => navigation.navigate("Login")}>Login</Button>
@@ -19,7 +25,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: "5%",
     paddingTop: "10%",
-  }
+  },
 })
 
-export default Start
+const mapState = state => {
+  const id = state?.userInfo?.id
+  return {
+    userLoggedIn: id != undefined,
+  }
+}
+
+export default connect(mapState)(Start)

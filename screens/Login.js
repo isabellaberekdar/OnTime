@@ -6,8 +6,8 @@ import { logInUserThunk, clearError } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "",
-    password: "",
+    email: "test@gmail.com",
+    password: "password",
   }
 
   //TODO
