@@ -3,20 +3,16 @@ import { View, FlatList, StyleSheet, Text } from "react-native"
 import { Button } from "react-native-paper"
 import { Event } from "../components"
 import { connect } from "react-redux"
-import { getEventsThunk } from "../store/utilities/events"
-import { PURGE } from "redux-persist"
+import { logout } from "../store"
+
 const Home = (props, { navigation }) => {
   const { events, firstName, id } = props
 
   const logout = () => {
-    const { dispatch, navigation } = props
+    const { dispatch, navigation, logout } = props
 
     navigation.navigate("Start")
-    dispatch({
-      type: PURGE,
-      key: "root",
-      result: () => null, // Function expected on the submitted action.
-    })
+    logout()
   }
   return (
     <View style={styles.homeContainer}>
@@ -82,8 +78,7 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
   return {
-    dispatch,
-    /*  getEvents: () => dispatch(getEventsThunk()), */
+    logout: () => dispatch(logout())
   }
 }
 

@@ -10,28 +10,20 @@ import * as reducers from "../reducers"
 const persistConfig = {
   key: "root",
   storage: AsyncStorage,
-  whitelist: ['userInfo', 'events']
+  whitelist: ["userInfo", "events"],
 }
 
 export const logout = () => {
   return {
-    type: "USER_LOGGED_OUT",
+    type: PURGE,
+    key: "root",
+    result: () => null, // Function expected on the submitted action.
   }
 }
 
-const appReducer = persistCombineReducers(persistConfig, reducers)
-const rootReducer = (state, action) => {
-  switch (action.type) {
-    case "USER_LOGGED_OUT":
-      return {}
-  }
-
-  return appReducer(state, action)
-}
-
-const persistedReducer = persistReducer(persistConfig, rootReducer)
+const rootReducer = persistCombineReducers(persistConfig, reducers)
 const middleware = composeWithDevTools(applyMiddleware(thunkMiddleware))
-const store = createStore(persistedReducer, middleware)
+const store = createStore(rootReducer, middleware)
 export const persistor = persistStore(store)
 
 export default store
