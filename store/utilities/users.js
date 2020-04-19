@@ -4,10 +4,9 @@ import axios from "axios"
 const LOG_IN_USER = "LOG_IN_USER"
 const REGISTER_USER = "REGISTER_USER"
 const LOG_ERROR = "LOG_ERROR"
-const CLEAR_ERROR = "CLEAR_ERROR"
 
 // ACTION CREATORS
-const logInUser = (userInfo) => {
+const logInUser = userInfo => {
   return {
     type: LOG_IN_USER,
     payload: userInfo,
@@ -17,19 +16,14 @@ const logInUser = (userInfo) => {
 const logError = error => {
   return {
     type: LOG_ERROR,
-    payload: error
+    payload: error,
   }
 }
 
-const clearError = () => {
-  return {
-    type: CLEAR_ERROR
-  }
-}
 
 
 // THUNK CREATORS
-export const logInUserThunk = (email, password) => async (dispatch) => {
+export const logInUserThunk = (email, password) => async dispatch => {
   try {
     const credentials = {
       email: email,
@@ -41,16 +35,13 @@ export const logInUserThunk = (email, password) => async (dispatch) => {
       credentials
     )
     if (data.authError) {
-
       dispatch(logError(data.authError))
-    }
-    else if (data.error) {
+    } else if (data.error) {
       dispatch(logError(data.error))
-    }
-    else {
+    } else {
+      console.log('logging in')
       dispatch(logInUser(data))
-      dispatch(clearError())
-    } 
+    }
   } catch (error) {
     //console.log(error)
   }
@@ -68,17 +59,16 @@ const reducer = (state = {}, action) => {
         lastName: lastName,
         email: email,
         id: id,
+        error: null,
+        successfulLogin: true
       }
     case LOG_ERROR:
       return {
         ...state,
-        error: action.payload
+        error: action.payload,
+        successfulLogin: false
       }
-    case CLEAR_ERROR:
-      return {
-        ...state,
-        error: null
-      }
+
     default:
       return state
   }

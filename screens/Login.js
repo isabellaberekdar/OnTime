@@ -6,8 +6,9 @@ import { logInUserThunk } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "",
-    password: "",
+    email: "test@gmail.com",
+    password: "password",
+    error: null,
   }
 
   //TODO
@@ -21,10 +22,16 @@ class Login extends React.Component {
   }
 
   logIn = async (email, password) => {
-    const { logInUser, navigation, error } = this.props
+    const { logInUser } = this.props
     if (this.validEmail && this.validPassword) {
-      const login = await logInUser(email, password)
-      //console.log(error)
+      logInUser(email, password)
+    }
+  }
+
+  // If login is successful, redirect to homepage
+  componentDidUpdate(prevProps, prevState) {
+    const { navigation, successfulLogin } = this.props
+    if (prevProps.successfulLogin != successfulLogin && successfulLogin === true) {
       navigation.navigate("Home")
     }
   }
@@ -39,7 +46,6 @@ class Login extends React.Component {
 
   render() {
     const { email, password } = this.state
-    //console.log(this.props.error)
     return (
       <View style={styles.container}>
         <TextInput
@@ -82,9 +88,12 @@ const styles = StyleSheet.create({
 const mapState = state => {
   const id = state?.userInfo?.id
   const error = state?.userInfo?.error
+  const successfulLogin = state?.userInfo?.successfulLogin
+
   return {
     userId: id,
     error: error,
+    successfulLogin: successfulLogin,
   }
 }
 

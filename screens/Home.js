@@ -7,7 +7,7 @@ import { getEventsThunk } from "../store/utilities/events"
 import { PURGE } from "redux-persist"
 const Home = (props, { navigation }) => {
   const { events, firstName, id } = props
-  
+
   const logout = () => {
     const { dispatch, navigation } = props
 
@@ -18,7 +18,6 @@ const Home = (props, { navigation }) => {
       result: () => null, // Function expected on the submitted action.
     })
   }
-  console.log("error: ", props.error)
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
@@ -36,7 +35,8 @@ const Home = (props, { navigation }) => {
         <Text>You have no upcoming events.</Text>
       )}
 
-      <Button onPress={() => /*  navigation.navigate("Search") */ logout()}>Search Events</Button>
+      <Button onPress={() => navigation.navigate("Search")}>Search Events</Button>
+      <Button onPress={() => logout()}>logout</Button>
     </View>
   )
 }
@@ -63,10 +63,9 @@ const styles = StyleSheet.create({
 
 const mapState = state => {
   let events,
-    email,
     id,
     firstName,
-    lastName, error = null
+    error = null
   if (state) {
     events = state.events.events
     firstName = state.userInfo.firstName
@@ -77,7 +76,7 @@ const mapState = state => {
     events: events,
     firstName: firstName,
     id: id,
-    error: error
+    error: error,
   }
 }
 
