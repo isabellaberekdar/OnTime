@@ -26,7 +26,7 @@ function App() {
       <PersistGate persistor={persistor} loading={<View><Text>Loading...</Text></View>}>
         <NavigationContainer>
           <Stack.Navigator
-            initialRouteName={"Login"}
+            initialRouteName={"Register"}
             screenOptions={{ headerShown: false }}
           >
             <Stack.Screen name='Home' component={Home} />

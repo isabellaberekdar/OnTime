@@ -25,6 +25,7 @@ class Login extends React.Component {
     if (this.validEmail && this.validPassword) {
       await logInUser(email, password)
       navigation.navigate("Home")
+      // clear error
     }
   }
 

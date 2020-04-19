@@ -1,37 +1,52 @@
 import React from "react"
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
-//import { registerUserThunk } from "../store/utilities/users"
+import { registerUserThunk } from "../store/utilities/users"
 
 class Register extends React.Component {
   state = {
-    email: "test@gmail.com",
+    email: "banana@gmail.com",
     password: "password",
-    firstName: '', 
-    lastName: ''
+    firstName: "apple",
+    lastName: "banana",
+    error: null,
   }
 
   //TODO
-  validEmail = (email) => {
+  validEmail = email => {
     return true
   }
 
   //TODO
-  validPassword = (password) => {
+  validPassword = password => {
     return true
   }
 
   register = async (email, password) => {
-    const { logInUser, navigation } = this.props
+    const { registerUser } = this.props
     if (this.validEmail && this.validPassword) {
-      await registerUser(email, password)
+      registerUser(email, password)
+    }
+  }
+
+  // If registration is successful, redirect to homepage
+  componentDidUpdate(prevProps) {
+    const { navigation, successfulRegistration } = this.props
+    if (prevProps.successfulRegistration != successfulRegistration && successfulRegistration === true) {
       navigation.navigate("Home")
     }
   }
 
+  componentDidMount() {
+    const { userId, navigation } = this.props
+    if (userId) {
+      navigation.navigate("Login")
+    }
+  }
+
   render() {
-    const { email, password, firstName, lastName } = this.state
+    const { email, password, firstName, lastName, error } = this.state
     return (
       <View style={styles.container}>
         <TextInput
@@ -39,7 +54,7 @@ class Register extends React.Component {
           value={email}
           textContentType='emailAddress'
           autoCapitalize='none'
-          onChangeText={(email) => this.setState({ email })}
+          onChangeText={email => this.setState({ email })}
           style={styles.input}
         />
         <TextInput
@@ -47,11 +62,28 @@ class Register extends React.Component {
           value={password}
           textContentType='password'
           autoCapitalize='none'
-          onChangeText={(password) => this.setState({ password })}
+          onChangeText={password => this.setState({ password })}
           secureTextEntry
           style={styles.input}
         />
-        <Button onPress={() => this.logIn(email, password)}>Log in</Button>
+        <TextInput
+          label='first name'
+          value={firstName}
+          textContentType='firstName'
+          onChangeText={firstName => this.setState({ firstName })}
+          style={styles.input}
+        />
+        <TextInput
+          label='lastName'
+          value={lastName}
+          textContentType='last name'
+          onChangeText={lastName => this.setState({ lastName })}
+          style={styles.input}
+        />
+        <Text>{error}</Text>
+        <Button onPress={() => this.register(email, password, firstName, lastName)}>
+          Register
+        </Button>
       </View>
     )
   }
@@ -70,17 +102,20 @@ const styles = StyleSheet.create({
   },
 })
 
-/* const mapState = (state) => {
-  const  id = state?.userInfo?.id
-  return {
-    userId: id,
-  }
-} */
+const mapState = state => {
+  const error = state?.userInfo?.error
+  const successfulRegistration = state?.userInfo?.successfulRegistration
 
-const mapDispatch = (dispatch) => {
   return {
-    //register: (email, password) => dispatch(registerThunk(email, password)),
+    error: error,
+    successfulRegistration: successfulRegistration,
   }
 }
 
-export default connect(null, mapDispatch)(Register)
+const mapDispatch = dispatch => {
+  return {
+    registerUser: (email, password) => dispatch(registerUserThunk(email, password)),
+  }
+}
+
+export default connect(mapState, mapDispatch)(Register)
