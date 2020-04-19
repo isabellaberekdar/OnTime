@@ -37,14 +37,6 @@ class Login extends React.Component {
     }
   }
 
-  // TODO: add a loading screen while redux store loads, so logged in users don't see the login screen
-  componentDidMount() {
-    const { userId, navigation } = this.props
-    if (userId) {
-      navigation.navigate("Home")
-    }
-  }
-
   render() {
     const { email, password } = this.state
     return (

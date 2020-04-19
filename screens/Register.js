@@ -29,14 +29,14 @@ class Register extends React.Component {
     }
   }
 
-  // If registration is successful, redirect to homepage
+  // If registration is successful, redirect back to Start screen
   componentDidUpdate(prevProps) {
     const { navigation, successfulRegistration } = this.props
     if (
       prevProps.successfulRegistration != successfulRegistration &&
       successfulRegistration === true
     ) {
-      navigation.navigate("Home")
+      navigation.navigate("Start")
     }
   }
 

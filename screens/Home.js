@@ -11,7 +11,7 @@ const Home = (props, { navigation }) => {
   const logout = () => {
     const { dispatch, navigation } = props
 
-    navigation.navigate("Login")
+    navigation.navigate("Start")
     dispatch({
       type: PURGE,
       key: "root",
