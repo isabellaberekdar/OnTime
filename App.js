@@ -9,33 +9,37 @@ import {
   Home,
   Login,
   Register,
+  Start,
   CreateEvent,
   EditEvent,
   Event,
   ForgotPassword,
   Invitations,
   Notifications,
-  Search
+  Search,
 } from "./screens"
-
+import { View, Text } from "react-native"
 const Stack = createStackNavigator()
 
 function App() {
-  // If the user is logged in, their id will be saved in the redux store
-  const userId = store.getState().userInfo.id
   return (
     <Provider store={store}>
-      <PersistGate persistor={persistor} loading={null}>
+      <PersistGate
+        persistor={persistor}
+        loading={
+          <View>
+            <Text>Loading...</Text>
+          </View>
+        }
+      >
         <NavigationContainer>
-          <Stack.Navigator
-            initialRouteName={userId ? "Login" : "Home"}
-            screenOptions={{ headerShown: false }}
-          >
+          <Stack.Navigator initialRouteName={"Start"} screenOptions={{ headerShown: false }}>
             <Stack.Screen name='Home' component={Home} />
             <Stack.Screen name='Login' component={Login} />
-            {/*  
-            <Stack.Screen name="Register" component={Register} /> 
-            <Stack.Screen name="CreateEvent" component={CreateEvent} /> 
+            <Stack.Screen name='Register' component={Register} />
+            <Stack.Screen name='Start' component={Start} />
+
+            {/*<Stack.Screen name="CreateEvent" component={CreateEvent} /> 
             <Stack.Screen name="EditEvent" component={EditEvent} /> 
             <Stack.Screen name="Event" component={Event} /> 
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} /> 

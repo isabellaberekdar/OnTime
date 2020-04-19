@@ -4,22 +4,39 @@ import { Button } from "react-native-paper"
 import { Event } from "../components"
 import { connect } from "react-redux"
 import { getEventsThunk } from "../store/utilities/events"
-
-const Home = (props, {navigation}) => {
+import { PURGE } from "redux-persist"
+const Home = (props, { navigation }) => {
   const { events, firstName, id } = props
+
+  const logout = () => {
+    const { dispatch, navigation } = props
+
+    navigation.navigate("Start")
+    dispatch({
+      type: PURGE,
+      key: "root",
+      result: () => null, // Function expected on the submitted action.
+    })
+  }
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
       <Text style={styles.text}>Your Events:</Text>
       <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
-      <FlatList
-        data={events}
-        renderItem={(event) => <Event event={event.item} userId={id} />}
-        keyExtractor={(event) => event.code}
-        style={styles.eventsList}
-        showsVerticalScrollIndicator={false}
-      />
+      {events ? (
+        <FlatList
+          data={events}
+          renderItem={event => <Event event={event.item} userId={id} />}
+          keyExtractor={event => event.code}
+          style={styles.eventsList}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <Text>You have no upcoming events.</Text>
+      )}
+
       <Button onPress={() => navigation.navigate("Search")}>Search Events</Button>
+      <Button onPress={() => logout()}>logout</Button>
     </View>
   )
 }
@@ -44,21 +61,29 @@ const styles = StyleSheet.create({
   },
 })
 
-const mapState = (state) => {
-  const { events } = state.events
-  const { email, id, firstName, lastName } = state.userInfo
+const mapState = state => {
+  let events,
+    id,
+    firstName,
+    error = null
+  if (state) {
+    events = state.events.events
+    firstName = state.userInfo.firstName
+    id = state.userInfo.id
+    error = state.userInfo.error
+  }
   return {
     events: events,
-    email: email,
-    id: id,
     firstName: firstName,
-    lastName: lastName,
+    id: id,
+    error: error,
   }
 }
 
-const mapDispatch = (dispatch) => {
+const mapDispatch = dispatch => {
   return {
-    getEvents: () => dispatch(getEventsThunk()),
+    dispatch,
+    /*  getEvents: () => dispatch(getEventsThunk()), */
   }
 }
 

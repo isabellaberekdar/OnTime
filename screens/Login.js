@@ -1,8 +1,8 @@
 import React from "react"
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
-import { logInUserThunk } from "../store/utilities/users"
+import { logInUserThunk, clearError } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
@@ -11,25 +11,38 @@ class Login extends React.Component {
   }
 
   //TODO
-  validEmail = (email) => {
+  validEmail = email => {
     return true
   }
 
   //TODO
-  validPassword = (password) => {
+  validPassword = password => {
     return true
   }
 
-  logIn = (email, password) => {
-    const { logInUser, navigation } = this.props
+  logIn = async (email, password) => {
+    const { logInUser } = this.props
     if (this.validEmail && this.validPassword) {
       logInUser(email, password)
+    }
+  }
+
+  // If login is successful, redirect to homepage
+  componentDidUpdate(prevProps) {
+    const { navigation, successfulLogin } = this.props
+    if (prevProps.successfulLogin != successfulLogin && successfulLogin === true) {
       navigation.navigate("Home")
     }
   }
 
+  componentDidMount() {
+    this.props.clearError()
+  }
+
   render() {
     const { email, password } = this.state
+    console.log(this.props.error, this.props.successfulLogin)
+
     return (
       <View style={styles.container}>
         <TextInput
@@ -37,7 +50,7 @@ class Login extends React.Component {
           value={email}
           textContentType='emailAddress'
           autoCapitalize='none'
-          onChangeText={(email) => this.setState({ email })}
+          onChangeText={email => this.setState({ email })}
           style={styles.input}
         />
         <TextInput
@@ -45,10 +58,11 @@ class Login extends React.Component {
           value={password}
           textContentType='password'
           autoCapitalize='none'
-          onChangeText={(password) => this.setState({ password })}
+          onChangeText={password => this.setState({ password })}
           secureTextEntry
           style={styles.input}
         />
+        <Text>{this.props.error}</Text>
         <Button onPress={() => this.logIn(email, password)}>Log in</Button>
       </View>
     )
@@ -68,16 +82,22 @@ const styles = StyleSheet.create({
   },
 })
 
-const mapState = (state) => {
-  const { id } = state.userInfo
+const mapState = state => {
+  const id = state?.userInfo?.id
+  const error = state?.userInfo?.error
+  const successfulLogin = state?.userInfo?.successfulLogin
+
   return {
     userId: id,
+    error: error,
+    successfulLogin: successfulLogin,
   }
 }
 
-const mapDispatch = (dispatch) => {
+const mapDispatch = dispatch => {
   return {
     logInUser: (email, password) => dispatch(logInUserThunk(email, password)),
+    clearError: () => dispatch(clearError()),
   }
 }
 
