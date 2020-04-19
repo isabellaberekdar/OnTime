@@ -10,7 +10,6 @@ class Register extends React.Component {
     password: "password",
     firstName: "apple",
     lastName: "banana",
-    error: null,
   }
 
   //TODO
@@ -33,7 +32,10 @@ class Register extends React.Component {
   // If registration is successful, redirect to homepage
   componentDidUpdate(prevProps) {
     const { navigation, successfulRegistration } = this.props
-    if (prevProps.successfulRegistration != successfulRegistration && successfulRegistration === true) {
+    if (
+      prevProps.successfulRegistration != successfulRegistration &&
+      successfulRegistration === true
+    ) {
       navigation.navigate("Home")
     }
   }
@@ -46,7 +48,8 @@ class Register extends React.Component {
   }
 
   render() {
-    const { email, password, firstName, lastName, error } = this.state
+    console.log(this.props.error)
+    const { email, password, firstName, lastName } = this.state
     return (
       <View style={styles.container}>
         <TextInput
@@ -69,18 +72,18 @@ class Register extends React.Component {
         <TextInput
           label='first name'
           value={firstName}
-          textContentType='firstName'
+          textContentType='givenName'
           onChangeText={firstName => this.setState({ firstName })}
           style={styles.input}
         />
         <TextInput
-          label='lastName'
+          label='last name'
           value={lastName}
-          textContentType='last name'
+          textContentType='familyName'
           onChangeText={lastName => this.setState({ lastName })}
           style={styles.input}
         />
-        <Text>{error}</Text>
+        <Text>{this.props.error}</Text>
         <Button onPress={() => this.register(email, password, firstName, lastName)}>
           Register
         </Button>
@@ -114,7 +117,8 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
   return {
-    registerUser: (email, password) => dispatch(registerUserThunk(email, password)),
+    registerUser: (email, password, firstName, lastName) =>
+      dispatch(registerUserThunk(email, password, firstName, lastName)),
   }
 }
 
