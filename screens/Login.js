@@ -2,13 +2,12 @@ import React from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
-import { logInUserThunk } from "../store/utilities/users"
+import { logInUserThunk, clearError } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "test@gmail.com",
-    password: "password",
-    error: null,
+    email: "",
+    password: "",
   }
 
   //TODO
@@ -29,16 +28,21 @@ class Login extends React.Component {
   }
 
   // If login is successful, redirect to homepage
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps) {
     const { navigation, successfulLogin } = this.props
     if (prevProps.successfulLogin != successfulLogin && successfulLogin === true) {
       navigation.navigate("Home")
-      // clear error
     }
+  }
+
+  componentDidMount() {
+    this.props.clearError()
   }
 
   render() {
     const { email, password } = this.state
+    console.log(this.props.error, this.props.successfulLogin)
+
     return (
       <View style={styles.container}>
         <TextInput
@@ -93,6 +97,7 @@ const mapState = state => {
 const mapDispatch = dispatch => {
   return {
     logInUser: (email, password) => dispatch(logInUserThunk(email, password)),
+    clearError: () => dispatch(clearError()),
   }
 }
 

@@ -2,14 +2,14 @@ import React from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
-import { registerUserThunk } from "../store/utilities/users"
+import { registerUserThunk, clearError } from "../store/utilities/users"
 
 class Register extends React.Component {
   state = {
-    email: "banana@gmail.com",
-    password: "password",
-    firstName: "apple",
-    lastName: "banana",
+    email: "",
+    password: "",
+    firstName: "",
+    lastName: "",
   }
 
   //TODO
@@ -22,10 +22,10 @@ class Register extends React.Component {
     return true
   }
 
-  register = async (email, password) => {
+  register = (email, password, firstName, lastName) => {
     const { registerUser } = this.props
     if (this.validEmail && this.validPassword) {
-      registerUser(email, password)
+      registerUser(email, password, firstName, lastName)
     }
   }
 
@@ -41,14 +41,14 @@ class Register extends React.Component {
   }
 
   componentDidMount() {
-    const { userId, navigation } = this.props
+    const { userId, navigation, clearError } = this.props
+    clearError()
     if (userId) {
       navigation.navigate("Login")
     }
   }
 
   render() {
-    console.log(this.props.error)
     const { email, password, firstName, lastName } = this.state
     return (
       <View style={styles.container}>
@@ -72,14 +72,12 @@ class Register extends React.Component {
         <TextInput
           label='first name'
           value={firstName}
-          textContentType='givenName'
           onChangeText={firstName => this.setState({ firstName })}
           style={styles.input}
         />
         <TextInput
           label='last name'
           value={lastName}
-          textContentType='familyName'
           onChangeText={lastName => this.setState({ lastName })}
           style={styles.input}
         />
@@ -119,6 +117,7 @@ const mapDispatch = dispatch => {
   return {
     registerUser: (email, password, firstName, lastName) =>
       dispatch(registerUserThunk(email, password, firstName, lastName)),
+    clearError: () => dispatch(clearError()),
   }
 }
 

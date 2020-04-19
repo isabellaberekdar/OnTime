@@ -5,6 +5,7 @@ const LOG_IN_USER = "LOG_IN_USER"
 const REGISTER_USER = "REGISTER_USER"
 const LOGIN_ERROR = "LOGIN_ERROR"
 const REGISTRATION_ERROR = "REGISTRATION_ERROR"
+const CLEAR_ERROR = "CLEAR_ERROR"
 
 // ACTION CREATORS
 const logInUser = userInfo => {
@@ -31,6 +32,12 @@ const registrationError = error => {
   return {
     type: REGISTRATION_ERROR,
     payload: error,
+  }
+}
+
+export const clearError = () => {
+  return {
+    type: CLEAR_ERROR
   }
 }
 
@@ -67,22 +74,38 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
       lastName: lastName,
     }
 
-    const { data } = await axios.post("https://fair-hallway-265819.appspot.com/api/register", info)
-    
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+
+    const { data } = await axios.post(
+      "https://fair-hallway-265819.appspot.com/api/register",
+      info,
+      config
+    )
+
     if (data.error) {
       dispatch(registrationError(data.error))
     } else if (data.duplicateUserError) {
       dispatch(registrationError(data.duplicateUserError))
-    } else {
+    } else if (data.firstName) {
       dispatch(registerUser(data))
     }
   } catch (error) {
-    //console.log(error)
+    console.log(error)
   }
 }
 
+
+const initialState = {
+  error: null,
+  successfulLogin: false,
+  successfulRegistration: false
+}
 // REDUCER
-const reducer = (state = {}, action) => {
+const reducer = (state = initialState, action) => {
   switch (action.type) {
     case LOG_IN_USER:
       const { firstName, lastName } = action.payload.userInfo
@@ -113,6 +136,13 @@ const reducer = (state = {}, action) => {
         ...state,
         error: action.payload,
         successfulRegistration: false,
+      }
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        error: null,
+        successfulLogin: false,
+        successfulRegistration: false
       }
     default:
       return state
