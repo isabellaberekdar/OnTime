@@ -1,5 +1,5 @@
 import React from "react"
-import { View, StyleSheet } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
 import { logInUserThunk } from "../store/utilities/users"
@@ -11,19 +11,20 @@ class Login extends React.Component {
   }
 
   //TODO
-  validEmail = (email) => {
+  validEmail = email => {
     return true
   }
 
   //TODO
-  validPassword = (password) => {
+  validPassword = password => {
     return true
   }
 
   logIn = async (email, password) => {
-    const { logInUser, navigation } = this.props
+    const { logInUser, navigation, error } = this.props
     if (this.validEmail && this.validPassword) {
-      await logInUser(email, password)
+      const login = await logInUser(email, password)
+      //console.log(error)
       navigation.navigate("Home")
     }
   }
@@ -38,6 +39,7 @@ class Login extends React.Component {
 
   render() {
     const { email, password } = this.state
+    //console.log(this.props.error)
     return (
       <View style={styles.container}>
         <TextInput
@@ -45,7 +47,7 @@ class Login extends React.Component {
           value={email}
           textContentType='emailAddress'
           autoCapitalize='none'
-          onChangeText={(email) => this.setState({ email })}
+          onChangeText={email => this.setState({ email })}
           style={styles.input}
         />
         <TextInput
@@ -53,10 +55,11 @@ class Login extends React.Component {
           value={password}
           textContentType='password'
           autoCapitalize='none'
-          onChangeText={(password) => this.setState({ password })}
+          onChangeText={password => this.setState({ password })}
           secureTextEntry
           style={styles.input}
         />
+        <Text>{this.props.error}</Text>
         <Button onPress={() => this.logIn(email, password)}>Log in</Button>
       </View>
     )
@@ -76,14 +79,16 @@ const styles = StyleSheet.create({
   },
 })
 
-const mapState = (state) => {
-  const  id = state?.userInfo?.id
+const mapState = state => {
+  const id = state?.userInfo?.id
+  const error = state?.userInfo?.error
   return {
     userId: id,
+    error: error,
   }
 }
 
-const mapDispatch = (dispatch) => {
+const mapDispatch = dispatch => {
   return {
     logInUser: (email, password) => dispatch(logInUserThunk(email, password)),
   }

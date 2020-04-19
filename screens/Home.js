@@ -18,6 +18,7 @@ const Home = (props, { navigation }) => {
       result: () => null, // Function expected on the submitted action.
     })
   }
+  console.log("error: ", props.error)
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
@@ -65,16 +66,18 @@ const mapState = state => {
     email,
     id,
     firstName,
-    lastName = null
+    lastName, error = null
   if (state) {
     events = state.events.events
     firstName = state.userInfo.firstName
     id = state.userInfo.id
+    error = state.userInfo.error
   }
   return {
     events: events,
     firstName: firstName,
     id: id,
+    error: error
   }
 }
 

@@ -25,7 +25,7 @@ export const getEventsThunk = (userId) => async (dispatch) => {
     // currently uses a hardcoded events list
     dispatch(getEvents(events))
   } catch (error) {
-    console.log(error)
+    //console.log(error)
   }
 }
 
