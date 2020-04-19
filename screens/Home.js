@@ -7,7 +7,7 @@ import { getEventsThunk } from "../store/utilities/events"
 import { PURGE } from "redux-persist"
 const Home = (props, { navigation }) => {
   const { events, firstName, id } = props
-  
+
   const logout = () => {
     const { dispatch, navigation } = props
 
@@ -35,7 +35,8 @@ const Home = (props, { navigation }) => {
         <Text>You have no upcoming events.</Text>
       )}
 
-      <Button onPress={() => /*  navigation.navigate("Search") */ logout()}>Search Events</Button>
+      <Button onPress={() => navigation.navigate("Search")}>Search Events</Button>
+      <Button onPress={() => logout()}>logout</Button>
     </View>
   )
 }
@@ -62,19 +63,20 @@ const styles = StyleSheet.create({
 
 const mapState = state => {
   let events,
-    email,
     id,
     firstName,
-    lastName = null
+    error = null
   if (state) {
     events = state.events.events
     firstName = state.userInfo.firstName
     id = state.userInfo.id
+    error = state.userInfo.error
   }
   return {
     events: events,
     firstName: firstName,
     id: id,
+    error: error,
   }
 }
 

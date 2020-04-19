@@ -21,11 +21,9 @@ export const logout = () => {
 
 const appReducer = persistCombineReducers(persistConfig, reducers)
 const rootReducer = (state, action) => {
-  console.log("asdf1")
   switch (action.type) {
     case "USER_LOGGED_OUT":
-      console.log("PURGING!!!!")
-      return {} // Return the initial state of this reducer to 'reset' the app
+      return {}
   }
 
   return appReducer(state, action)
