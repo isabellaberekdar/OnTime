@@ -2,47 +2,48 @@ import React from "react"
 import { View, StyleSheet, Text, TouchableNativeFeedbackBase } from "react-native"
 import { Button, TextInput, Switch } from "react-native-paper"
 import { connect } from "react-redux"
-import { registerUserThunk, clearError } from "../store/utilities/users"
+import { createEventThunk, clearError } from "../store/utilities/users"
 import { WeekdayPicker } from "../components"
-import DateTimePicker from "@react-native-community/datetimepicker"
+import DateTimePickerModal from "react-native-modal-datetime-picker"
 
 class CreateEvent extends React.Component {
   state = {
     eventName: "",
-    startDate: "",
-    endDate: "",
-    startTime: "",
+    startDate: new Date(Date.now()),
+    endDate: new Date(Date.now()),
     eventLocation: "",
     privateEvent: false,
     repeatWeekly: false,
-    showDateTimePicker: false,
-    days: "0000000",
+    showStartDatePicker: false,
+    showEndDatePicker: false,
+    showStartTimePicker: false,
+    days: "0000000" // Su Mo Tu We Th Fr Sa
   }
 
-  //TODO: validation
-  create = () => {
-    const { registerUser } = this.props
-    if (true) {
-      ///registerUser(email, password, firstName, lastName)
-    }
+  componentDidMount() {
+    const { clearError } = this.props
+    clearError()
   }
 
-  // If registration is successful, redirect back to Start screen
+  // If event created successfully, redirect back to Home screen
   componentDidUpdate(prevProps) {
-    const { navigation, successfulRegistration } = this.props
+    const { navigation, successfulEventCreation } = this.props
     if (
-      prevProps.successfulRegistration != successfulRegistration &&
-      successfulRegistration === true
+      prevProps.successfulEventCreation != successfulEventCreation &&
+      successfulEventCreation === true
     ) {
       navigation.navigate("Home")
     }
   }
 
-  componentDidMount() {
-    const { userId, navigation, clearError } = this.props
-    clearError()
-    if (userId) {
-      navigation.navigate("Login")
+  //TODO: validation
+  create = () => {
+    const { createEvent } = this.props
+    if (true) {
+      const eventInfo = {}
+      // 2020-04-23T22:05:43.170Z
+      // separate start time and start date here
+      createEvent(eventInfo)
     }
   }
 
@@ -61,15 +62,18 @@ class CreateEvent extends React.Component {
       eventLocation,
       privateEvent,
       repeatWeekly,
-      showDateTimePicker,
+      showStartDatePicker,
+      showEndDatePicker,
+      showStartTimePicker,
       startDate,
       endDate,
       startTime,
-      days,
+      days
     } = this.state
 
     return (
       <View style={styles.container}>
+        {console.log(startDate, showStartDatePicker)}
         <WeekdayPicker daysString={days} onPress={this.setDays} />
         <TextInput
           label='event name'
@@ -89,14 +93,18 @@ class CreateEvent extends React.Component {
           mode='outlined'
           style={styles.input}
         />
-        {/* <TextInput
-          label='first name'
-          value={firstName}
-          onChangeText={firstName => this.setState({ firstName })}
-          mode='outlined'
-          style={styles.input}
-        />
-        <TextInput
+        <Button onPress={() => this.setState({ showStartDatePicker: !showStartDatePicker })}>
+          {`Start Date: ${startDate.toDateString()}`}
+        </Button>
+        {repeatWeekly && (
+          <Button onPress={() => this.setState({ showEndDatePicker: !showEndDatePicker })}>
+            {`End Date: ${endDate.toDateString()}`}
+          </Button>
+        )}
+        <Button onPress={() => this.setState({ showStartTimePicker: !showStartTimePicker })}>
+          {`Start Time: ${startTime}`}
+        </Button>
+        {/*<TextInput
           label='last name'
           value={lastName}
           onChangeText={lastName => this.setState({ lastName })}
@@ -104,28 +112,40 @@ class CreateEvent extends React.Component {
           style={styles.input}
         /> */}
         <Text>{this.props.error}</Text>
-        {showDateTimePicker && (
-          <DateTimePicker
-            testID='dateTimePicker'
-            timeZoneOffsetInMinutes={0}
-            value={new Date(1598051730000)}
-            mode={"time"}
-            is24Hour={true}
-            display='default'
-            onChange={() => {}}
-          />
-        )}
-        <Text>{!privateEvent ? "Private event" : "public event"}</Text>
+        <DateTimePickerModal
+          isVisible={showStartDatePicker}
+          onConfirm={date => this.setState({ startDate: date, showStartDatePicker: false })}
+          onCancel={() => this.setState({ showStartDatePicker: false })}
+          minimumDate={new Date(Date.now())}
+          value={new Date(Date.now())}
+          mode={'datetime'}
+        />
+        <DateTimePickerModal
+          isVisible={showEndDatePicker}
+          onConfirm={date => this.setState({ endDate: date, showEndDatePicker: false })}
+          onCancel={() => this.setState({ showEndDatePicker: false })}
+          minimumDate={startDate}
+          value={endDate}
+        />
+{/*         <DateTimePickerModal
+          isVisible={showStartTimePicker}
+          onConfirm={date => this.setState({ startTime: date, showStartTimePicker: false })}
+          onCancel={() => this.setState({ showStartTimePicker: false })}
+          value={startTime}
+          mode={'time'}
+          is24Hour
+        /> */}
+        <Text>{!privateEvent ? "Private Event" : "Public Event"}</Text>
         <Switch
           value={privateEvent}
           onValueChange={() => this.setState({ privateEvent: !privateEvent })}
         />
-        <Text>{repeatWeekly ? "Repeating event" : "One-time event"}</Text>
+        <Text>{repeatWeekly ? "Repeating Event" : "One-Time Event"}</Text>
         <Switch
           value={repeatWeekly}
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
-        <Button onPress={() => this.create()}>CreateEvent</Button>
+        <Button onPress={() => this.create()}>Create Event</Button>
       </View>
     )
   }
@@ -134,31 +154,30 @@ class CreateEvent extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "center"
   },
   input: {
-    width: "75%",
+    width: "75%"
   },
   eventsList: {
-    height: "93%",
-  },
+    height: "93%"
+  }
 })
 
 const mapState = state => {
   const error = state?.userInfo?.error
-  const successfulRegistration = state?.userInfo?.successfulRegistration
+  const successfulEventCreation = state?.userInfo?.successfulEventCreation
 
   return {
     error: error,
-    successfulRegistration: successfulRegistration,
+    successfulEventCreation: successfulEventCreation
   }
 }
 
 const mapDispatch = dispatch => {
   return {
-    registerUser: (email, password, firstName, lastName) =>
-      dispatch(registerUserThunk(email, password, firstName, lastName)),
-    clearError: () => dispatch(clearError()),
+    createEvent: eventInfo => dispatch(createEventThunk(eventInfo)),
+    clearError: () => dispatch(clearError())
   }
 }
 

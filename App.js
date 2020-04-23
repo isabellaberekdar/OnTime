@@ -18,7 +18,6 @@ import {
   Notifications,
   Search,
 } from "./screens"
-import {WeekdayPicker} from './components'
 import { View, Text } from "react-native"
 const Stack = createStackNavigator()
 
