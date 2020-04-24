@@ -16,8 +16,13 @@ class CreateEvent extends React.Component {
     repeatWeekly: false,
     showStartDatePicker: false,
     showEndDatePicker: false,
-    showStartTimePicker: false,
-    days: "0000000" // Su Mo Tu We Th Fr Sa
+    // start day picker on top with the current day highlighted (because current date is the default)
+    // String format: Su Mo Tu We Th Fr Sa
+    days:
+      "0000000".substring(0, new Date(Date.now()).getDay()) +
+      "1" +
+      "0000000".substring(new Date(Date.now()).getDay() + 1)
+    
   }
 
   componentDidMount() {
@@ -38,22 +43,53 @@ class CreateEvent extends React.Component {
 
   //TODO: validation
   create = () => {
-    const { createEvent } = this.props
     if (true) {
-      const eventInfo = {}
-      // 2020-04-23T22:05:43.170Z
+      const { createEvent, id } = this.props
+      const { eventLocation, days, startDate, endDate, repeatWeekly, eventName, repeatWeekly } = this.state
+      // startDate is in format: 2020-04-23T22:05:43.170Z
+      const start = startDate.toISOString().substring(0, 10)
+      let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
+      const time = startDate.toISOString().substring(11, 19)
+
+      const eventInfo = {
+        startDate: start,
+        endDate: end,
+        time: time,
+        ownerId: id
+        eventName: eventName,
+        repeatWeekly: repeatWeekly,
+        weeklySchedule: days,
+        locationName: eventLocation,
+        //lat
+        //lng
+      }
+      console.log(start, end, time)
       // separate start time and start date here
-      createEvent(eventInfo)
+      //createEvent(eventInfo)
     }
   }
 
   setDays = newDay => {
-    const { days } = this.state
+    const { days, startDate, endDate, repeatWeekly } = this.state
     const daysList = { Su: 0, Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6 }
     const dayIndex = daysList[newDay]
-    const newValue = days[dayIndex] == "0" ? "1" : "0"
-    const newDaysString = days.substring(0, dayIndex) + newValue + days.substring(dayIndex + 1)
-    this.setState({ days: newDaysString })
+
+    // TODO: should also check for endDay if repeatWeekly is checked
+    // can't remove day if it is the chosen start date (alarm must ring on that day)
+    if (dayIndex != startDate.getDay()) {
+      const newValue = days[dayIndex] == "0" ? "1" : "0"
+      const newDaysString = days.substring(0, dayIndex) + newValue + days.substring(dayIndex + 1)
+      this.setState({ days: newDaysString })
+    }
+  }
+
+  setDate = date => {
+    // Update the days string so that the new day is highlighted only
+    let updatedDays = this.state.days
+    let newDayString = "0000000"
+    const dayIndex = date.getDay()
+    updatedDays = newDayString.substring(0, dayIndex) + "1" + newDayString.substring(dayIndex + 1)
+    this.setState({ startDate: date, showStartDatePicker: false, days: updatedDays })
   }
 
   render() {
@@ -64,10 +100,8 @@ class CreateEvent extends React.Component {
       repeatWeekly,
       showStartDatePicker,
       showEndDatePicker,
-      showStartTimePicker,
       startDate,
       endDate,
-      startTime,
       days
     } = this.state
 
@@ -76,7 +110,7 @@ class CreateEvent extends React.Component {
         {console.log(startDate, showStartDatePicker)}
         <WeekdayPicker daysString={days} onPress={this.setDays} />
         <TextInput
-          label='event name'
+          label='Event Name'
           value={eventName}
           textContentType='name'
           onChangeText={eventName => this.setState({ eventName })}
@@ -84,12 +118,11 @@ class CreateEvent extends React.Component {
           style={styles.input}
         />
         <TextInput
-          label='event location'
+          label='Event Location'
           value={eventLocation}
           textContentType='location'
           autoCapitalize='none'
           onChangeText={eventLocation => this.setState({ eventLocation })}
-          secureTextEntry
           mode='outlined'
           style={styles.input}
         />
@@ -101,24 +134,15 @@ class CreateEvent extends React.Component {
             {`End Date: ${endDate.toDateString()}`}
           </Button>
         )}
-        <Button onPress={() => this.setState({ showStartTimePicker: !showStartTimePicker })}>
-          {`Start Time: ${startTime}`}
-        </Button>
-        {/*<TextInput
-          label='last name'
-          value={lastName}
-          onChangeText={lastName => this.setState({ lastName })}
-          mode='outlined'
-          style={styles.input}
-        /> */}
+        {/* TODO: Dropdown?: alarm sound, vibration? */}
         <Text>{this.props.error}</Text>
         <DateTimePickerModal
           isVisible={showStartDatePicker}
-          onConfirm={date => this.setState({ startDate: date, showStartDatePicker: false })}
+          onConfirm={date => this.setDate(date)}
           onCancel={() => this.setState({ showStartDatePicker: false })}
           minimumDate={new Date(Date.now())}
           value={new Date(Date.now())}
-          mode={'datetime'}
+          mode={"datetime"}
         />
         <DateTimePickerModal
           isVisible={showEndDatePicker}
@@ -127,14 +151,6 @@ class CreateEvent extends React.Component {
           minimumDate={startDate}
           value={endDate}
         />
-{/*         <DateTimePickerModal
-          isVisible={showStartTimePicker}
-          onConfirm={date => this.setState({ startTime: date, showStartTimePicker: false })}
-          onCancel={() => this.setState({ showStartTimePicker: false })}
-          value={startTime}
-          mode={'time'}
-          is24Hour
-        /> */}
         <Text>{!privateEvent ? "Private Event" : "Public Event"}</Text>
         <Switch
           value={privateEvent}
@@ -167,10 +183,12 @@ const styles = StyleSheet.create({
 const mapState = state => {
   const error = state?.userInfo?.error
   const successfulEventCreation = state?.userInfo?.successfulEventCreation
+  const id = state?.userInfo?.id
 
   return {
     error: error,
-    successfulEventCreation: successfulEventCreation
+    successfulEventCreation: successfulEventCreation,
+    id: id
   }
 }
 

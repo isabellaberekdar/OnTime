@@ -43,4 +43,11 @@ function convert24HourTime(timeString) {
   return time
 }
 
+/* const start = startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate() 
+const time = startDate.getHours() + ':' + startDate.getMinutes() + ':' + startDate.getSeconds()
+const start = endDate.getFullYear() + '-' + endDate.getMonth() + '-' + endDate.getDate() 
+
+
+ */
+
 export { binaryToStringSchedule, convert24HourTime }
