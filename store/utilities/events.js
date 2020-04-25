@@ -5,6 +5,9 @@ import events from "../../eventSampleData"
 const GET_EVENTS = "GET_EVENTS"
 const EDIT_EVENT = "EDIT_EVENT"
 const CREATE_EVENT = "CREATE_EVENT"
+const EDIT_EVENT_ERROR = "EDIT_EVENT_ERROR"
+const CREATE_EVENT_ERROR = "CREATE_EVENT_ERROR"
+const CLEAR_ERROR = "CLEAR_ERROR"
 
 // ACTION CREATORS
 const getEvents = eventsList => {
@@ -18,6 +21,28 @@ const createEvent = newEvent => {
   return {
     type: CREATE_EVENT,
     payload: newEvent
+  }
+}
+
+
+const createEventError = () => {
+  return {
+    payload: "There was an error creating your event.",
+    type: CREATE_EVENT_ERROR,
+  }
+}
+
+const editEventError = () => {
+  return {
+    payload: "There was an error editing your event.",
+    type: EDIT_EVENT_ERROR,
+  }
+}
+
+
+export const clearError = () => {
+  return {
+    type: CLEAR_ERROR
   }
 }
 
@@ -40,24 +65,29 @@ export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.public ? "public" : "private"
     const { data } = await axios.post(
-      `https://fair-hallway-265819.appspot.com/api/events/${type}`,
-      eventsInfo
+      `https://fair-hallway-265819.appspot.com/api/events/${type}/create`,
+      eventInfo
     )
-    console.log("[Thunk]  new event: ", data)
-    // handle errors
-    dispatch(createEvent(data))
+
+    // TODO: handle errors
+    data.eventName ? dispatch(createEvent(data)) : dispatch(createEventError())
+
+    
   } catch (error) {
     console.log(error)
   }
 }
 
 const initialState = {
+  error: false,
   events: events,
-  successfulEventCreation: null
+  successfulEventCreation: false,
+  successfulEventEdit: false
 }
 
 // REDUCER
 const eventsReducer = (state = initialState, action) => {
+  console.log(action.type)
   switch (action.type) {
     case GET_EVENTS:
       return {
@@ -71,6 +101,26 @@ const eventsReducer = (state = initialState, action) => {
         ...state,
         successfulEventCreation: true,
         events: [...events, action.payload]
+      }
+
+    case CREATE_EVENT_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulEventCreation: false
+      }
+    case EDIT_EVENT_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulEventEdit: false
+      }
+    case CLEAR_ERROR:
+      return {
+        ...state,
+        error: null,
+        successfulEventCreation: false,
+        successfulEventEdit: false
       }
     default:
       return state

@@ -2,16 +2,16 @@ import React from "react"
 import { View, StyleSheet, Text, TouchableNativeFeedbackBase } from "react-native"
 import { Button, TextInput, Switch } from "react-native-paper"
 import { connect } from "react-redux"
-import { createEventThunk, clearError } from "../store/utilities/users"
+import { createEventThunk, clearError } from "../store/utilities/events"
 import { WeekdayPicker } from "../components"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 
 class CreateEvent extends React.Component {
   state = {
-    eventName: "",
+    eventName: "birthday party",
     startDate: new Date(Date.now()),
     endDate: new Date(Date.now()),
-    eventLocation: "",
+    eventLocation: "333 east 16th st",
     privateEvent: false,
     repeatWeekly: false,
     showStartDatePicker: false,
@@ -22,12 +22,10 @@ class CreateEvent extends React.Component {
       "0000000".substring(0, new Date(Date.now()).getDay()) +
       "1" +
       "0000000".substring(new Date(Date.now()).getDay() + 1)
-    
   }
 
   componentDidMount() {
-    const { clearError } = this.props
-    clearError()
+    this.props.clearError()
   }
 
   // If event created successfully, redirect back to Home screen
@@ -45,27 +43,36 @@ class CreateEvent extends React.Component {
   create = () => {
     if (true) {
       const { createEvent, id } = this.props
-      const { eventLocation, days, startDate, endDate, repeatWeekly, eventName, repeatWeekly } = this.state
+      const { eventLocation, days, startDate, endDate, eventName, repeatWeekly } = this.state
       // startDate is in format: 2020-04-23T22:05:43.170Z
       const start = startDate.toISOString().substring(0, 10)
       let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
       const time = startDate.toISOString().substring(11, 19)
 
-      const eventInfo = {
+      info = {
+        ownerId: id,
+        eventName: eventName,
         startDate: start,
         endDate: end,
-        time: time,
-        ownerId: id
-        eventName: eventName,
         repeatWeekly: repeatWeekly,
         weeklySchedule: days,
-        locationName: eventLocation,
-        //lat
-        //lng
+        time: time,
+        locationName: eventLocation
       }
-      console.log(start, end, time)
-      // separate start time and start date here
-      //createEvent(eventInfo)
+      const eventInfo = {
+        ownerId: id,
+        eventName: eventName,
+        startDate: start,
+        endDate: end,
+        repeatWeekly: repeatWeekly,
+        weeklySchedule: days,
+        time: time,
+        locationName: eventLocation,
+        lat: 1,
+        lng: 1
+      }
+
+      createEvent(eventInfo)
     }
   }
 
@@ -104,10 +111,10 @@ class CreateEvent extends React.Component {
       endDate,
       days
     } = this.state
-
+    console.log("error?", this.props.error)
     return (
       <View style={styles.container}>
-        {console.log(startDate, showStartDatePicker)}
+        {console.log(this.props.successfulEventCreation)}
         <WeekdayPicker daysString={days} onPress={this.setDays} />
         <TextInput
           label='Event Name'
@@ -135,7 +142,6 @@ class CreateEvent extends React.Component {
           </Button>
         )}
         {/* TODO: Dropdown?: alarm sound, vibration? */}
-        <Text>{this.props.error}</Text>
         <DateTimePickerModal
           isVisible={showStartDatePicker}
           onConfirm={date => this.setDate(date)}
@@ -161,6 +167,7 @@ class CreateEvent extends React.Component {
           value={repeatWeekly}
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
+        <Text>{this.props.error}</Text>
         <Button onPress={() => this.create()}>Create Event</Button>
       </View>
     )
@@ -181,10 +188,8 @@ const styles = StyleSheet.create({
 })
 
 const mapState = state => {
-  const error = state?.userInfo?.error
-  const successfulEventCreation = state?.userInfo?.successfulEventCreation
-  const id = state?.userInfo?.id
-
+  const id = state.userInfo
+  const { error, successfulEventCreation } = state.events
   return {
     error: error,
     successfulEventCreation: successfulEventCreation,
