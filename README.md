@@ -1,6 +1,11 @@
 # OnTime
 
 # How To Run
+
+
+https://reactnative.dev/docs/environment-setup
+
+
 Within terminal, install expo-cli. Make sure to install NodeJs first!
 
 ```
