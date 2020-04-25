@@ -17,6 +17,7 @@ import {
   Invitations,
   Notifications,
   Search,
+  Loading
 } from "./screens"
 import { View, Text } from "react-native"
 const Stack = createStackNavigator()
@@ -28,19 +29,19 @@ function App() {
         persistor={persistor}
         loading={
           <View>
-            {/* Add a loading screen here */}
+            <Loading />
           </View>
         }
       >
         <NavigationContainer>
-          <Stack.Navigator initialRouteName={"Home"} screenOptions={{ headerShown: false }}>
+          <Stack.Navigator initialRouteName={"Start"} screenOptions={{ headerShown: false }}>
             <Stack.Screen name='Home' component={Home} />
             <Stack.Screen name='Login' component={Login} />
             <Stack.Screen name='Register' component={Register} />
             <Stack.Screen name='Start' component={Start} />
-            <Stack.Screen name="CreateEvent" component={CreateEvent} /> 
-            {/*
-            <Stack.Screen name="EditEvent" component={EditEvent} /> 
+            <Stack.Screen name='CreateEvent' component={CreateEvent} />
+            <Stack.Screen name='EditEvent' component={EditEvent} />
+            {/*      
             <Stack.Screen name="Event" component={Event} /> 
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} /> 
             <Stack.Screen name="Invitations" component={Invitations} /> 
