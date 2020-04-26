@@ -1,44 +1,50 @@
 import axios from "axios"
-import events from "../../eventSampleData"
-
-// ACTION TYPES
-const GET_EVENTS = "GET_EVENTS"
-const EDIT_EVENT = "EDIT_EVENT"
-const CREATE_EVENT = "CREATE_EVENT"
-const EDIT_EVENT_ERROR = "EDIT_EVENT_ERROR"
-const CREATE_EVENT_ERROR = "CREATE_EVENT_ERROR"
-const CLEAR_ERROR = "CLEAR_ERROR"
+import {
+  LOG_IN_USER,
+  SET_EVENTS,
+  EDIT_EVENT,
+  EDIT_EVENT_ERROR,
+  CREATE_PUBLIC_EVENT,
+  CREATE_PRIVATE_EVENT,
+  CREATE_EVENT_ERROR,
+  CLEAR_ERROR
+} from "../../actionTypes"
 
 // ACTION CREATORS
-const getEvents = eventsList => {
+const getEvents = events => {
   return {
     type: GET_EVENTS,
-    payload: eventsList
+    payload: { public: events.public, private: events.private }
   }
 }
 
-const createEvent = newEvent => {
+const createPublicEvent = newEvent => {
   return {
-    type: CREATE_EVENT,
+    type: CREATE_PUBLIC_EVENT,
     payload: newEvent
   }
 }
 
+const createPrivateEvent = newEvent => {
+  return {
+    type: CREATE_PRIVATE_EVENT,
+    payload: newEvent
+  }
+}
 
 const createEventError = () => {
   return {
     payload: "There was an error creating your event.",
-    type: CREATE_EVENT_ERROR,
+    type: CREATE_EVENT_ERROR
   }
 }
 
 const editEventError = () => {
   return {
     payload: "There was an error editing your event.",
-    type: EDIT_EVENT_ERROR,
+    type: EDIT_EVENT_ERROR
   }
 }
-
 
 export const clearError = () => {
   return {
@@ -54,8 +60,7 @@ export const getEventsThunk = userId => async dispatch => {
       `/events/${userId}`
     );
     */
-    // currently uses a hardcoded events list
-    dispatch(getEvents(events))
+    //dispatch(getEvents({ public: publicEvents, private: privateEvents }))
   } catch (error) {
     console.log(error)
   }
@@ -63,16 +68,33 @@ export const getEventsThunk = userId => async dispatch => {
 
 export const createEventThunk = eventInfo => async dispatch => {
   try {
-    const type = eventInfo.public ? "public" : "private"
+    const type = eventInfo.private ? "private" : "public"
+
     const { data } = await axios.post(
       `https://fair-hallway-265819.appspot.com/api/events/${type}/create`,
       eventInfo
     )
-
-    // TODO: handle errors
-    data.eventName ? dispatch(createEvent(data)) : dispatch(createEventError())
-
-    
+    if (!data.eventName) {
+      dispatch(createEventError())
+    } else {
+      const newEvent = {
+        id: data.id,
+        endDate: data.endDate,
+        eventName: data.eventName,
+        lat: data.lat,
+        lng: data.lng,
+        locationName: data.locationName,
+        ownerId: data.ownerId,
+        repeatWeekly: data.repeatWeekly,
+        startDate: data.startDate,
+        time: data.time,
+        weeklySchedule: data.weeklySchedule,
+        ...(type === "private" && { code: data.code })
+      }
+      type === "public"
+        ? dispatch(createPublicEvent(newEvent))
+        : dispatch(createPrivateEvent(newEvent))
+    }
   } catch (error) {
     console.log(error)
   }
@@ -80,29 +102,35 @@ export const createEventThunk = eventInfo => async dispatch => {
 
 const initialState = {
   error: false,
-  events: events,
+  private: [],
+  public: [],
   successfulEventCreation: false,
   successfulEventEdit: false
 }
 
 // REDUCER
 const eventsReducer = (state = initialState, action) => {
-  console.log(action.type)
   switch (action.type) {
-    case GET_EVENTS:
+    case LOG_IN_USER:
+    case SET_EVENTS:
       return {
         ...state,
-        events: action.payload
+        private: action.payload.events.private,
+        public: action.payload.events.public
       }
-
     // add new event to the list of events in the store
-    case CREATE_EVENT:
+    case CREATE_PUBLIC_EVENT:
       return {
         ...state,
         successfulEventCreation: true,
-        events: [...events, action.payload]
+        public: [...state.public, action.payload]
       }
-
+    case CREATE_PRIVATE_EVENT:
+      return {
+        ...state,
+        successfulEventCreation: true,
+        private: [...state.private, action.payload]
+      }
     case CREATE_EVENT_ERROR:
       return {
         ...state,

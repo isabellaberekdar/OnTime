@@ -43,11 +43,6 @@ function convert24HourTime(timeString) {
   return time
 }
 
-/* const start = startDate.getFullYear() + '-' + startDate.getMonth() + '-' + startDate.getDate() 
-const time = startDate.getHours() + ':' + startDate.getMinutes() + ':' + startDate.getSeconds()
-const start = endDate.getFullYear() + '-' + endDate.getMonth() + '-' + endDate.getDate() 
-
-
- */
+// Convert a string like "10:11 AM" to "10:11:00"
 
 export { binaryToStringSchedule, convert24HourTime }

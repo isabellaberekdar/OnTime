@@ -50,16 +50,7 @@ class CreateEvent extends React.Component {
       let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
       const time = startDate.toISOString().substring(11, 19)
 
-      info = {
-        ownerId: id,
-        eventName: eventName,
-        startDate: start,
-        endDate: end,
-        repeatWeekly: repeatWeekly,
-        weeklySchedule: days,
-        time: time,
-        locationName: eventLocation
-      }
+
       const eventInfo = {
         ownerId: id,
         eventName: eventName,
@@ -112,10 +103,8 @@ class CreateEvent extends React.Component {
       endDate,
       days
     } = this.state
-    console.log("error?", this.props.error)
     return (
       <View style={styles.container}>
-        {console.log(this.props.successfulEventCreation)}
         <WeekdayPicker daysString={days} onPress={this.setDays} />
         <TextInput
           label='Event Name'
