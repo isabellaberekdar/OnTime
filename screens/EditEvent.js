@@ -6,14 +6,15 @@ import { createEventThunk, clearError } from "../store/utilities/events"
 import { WeekdayPicker } from "../components"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 
+/* Note: this is copied from CreateEvent, edit is not implemented yet */
+
 class CreateEvent extends React.Component {
-  
   state = {
-    eventName: "",
+    eventName: "test public",
     startDate: new Date(Date.now()),
     endDate: new Date(Date.now()),
-    eventLocation: "",
-    privateEvent: false,
+    eventLocation: "home",
+    publicEvent: false,
     repeatWeekly: false,
     showStartDatePicker: false,
     showEndDatePicker: false,
@@ -43,16 +44,23 @@ class CreateEvent extends React.Component {
   //TODO: validation
   create = () => {
     if (true) {
-      const { createEvent, id } = this.props
-      const { eventLocation, days, startDate, endDate, eventName, repeatWeekly } = this.state
+      const { createEvent, userId } = this.props
+      const {
+        eventLocation,
+        days,
+        startDate,
+        endDate,
+        eventName,
+        repeatWeekly,
+        publicEvent
+      } = this.state
       // startDate is in format: 2020-04-23T22:05:43.170Z
       const start = startDate.toISOString().substring(0, 10)
       let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
       const time = startDate.toISOString().substring(11, 19)
 
-
       const eventInfo = {
-        ownerId: id,
+        ownerId: userId,
         eventName: eventName,
         startDate: start,
         endDate: end,
@@ -60,6 +68,7 @@ class CreateEvent extends React.Component {
         weeklySchedule: days,
         time: time,
         locationName: eventLocation,
+        private: !publicEvent,
         lat: 1,
         lng: 1
       }
@@ -83,7 +92,7 @@ class CreateEvent extends React.Component {
   }
 
   setDate = date => {
-    // Update the days string so that the new day is highlighted only
+    // Update the days string so that only the new day is highlighted
     let updatedDays = this.state.days
     let newDayString = "0000000"
     const dayIndex = date.getDay()
@@ -95,7 +104,7 @@ class CreateEvent extends React.Component {
     const {
       eventName,
       eventLocation,
-      privateEvent,
+      publicEvent,
       repeatWeekly,
       showStartDatePicker,
       showEndDatePicker,
@@ -147,10 +156,10 @@ class CreateEvent extends React.Component {
           minimumDate={startDate}
           value={endDate}
         />
-        <Text>{!privateEvent ? "Private Event" : "Public Event"}</Text>
+        <Text>{publicEvent ? "Public Event" : "Private Event"}</Text>
         <Switch
-          value={privateEvent}
-          onValueChange={() => this.setState({ privateEvent: !privateEvent })}
+          value={publicEvent}
+          onValueChange={() => this.setState({ publicEvent: !publicEvent })}
         />
         <Text>{repeatWeekly ? "Repeating Event" : "One-Time Event"}</Text>
         <Switch
@@ -178,12 +187,12 @@ const styles = StyleSheet.create({
 })
 
 const mapState = state => {
-  const id = state.userInfo
+  const { id } = state.userInfo
   const { error, successfulEventCreation } = state.events
   return {
     error: error,
     successfulEventCreation: successfulEventCreation,
-    id: id
+    userId: id
   }
 }
 
