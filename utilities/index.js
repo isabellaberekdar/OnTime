@@ -43,4 +43,6 @@ function convert24HourTime(timeString) {
   return time
 }
 
+// Convert a string like "10:11 AM" to "10:11:00"
+
 export { binaryToStringSchedule, convert24HourTime }

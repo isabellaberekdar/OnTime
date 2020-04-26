@@ -6,8 +6,8 @@ import { logInUserThunk, clearError } from "../store/utilities/users"
 
 class Login extends React.Component {
   state = {
-    email: "test@gmail.com",
-    password: "password",
+    email: "",
+    password: "",
   }
 
   //TODO
@@ -41,7 +41,6 @@ class Login extends React.Component {
 
   render() {
     const { email, password } = this.state
-    console.log(this.props.error, this.props.successfulLogin)
 
     return (
       <View style={styles.container}>

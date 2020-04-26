@@ -9,7 +9,7 @@ class Register extends React.Component {
     email: "",
     password: "",
     firstName: "",
-    lastName: "",
+    lastName: ""
   }
 
   //TODO
@@ -93,14 +93,14 @@ class Register extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: "center"
   },
   input: {
-    width: "75%",
+    width: "75%"
   },
   eventsList: {
-    height: "93%",
-  },
+    height: "93%"
+  }
 })
 
 const mapState = state => {
@@ -109,7 +109,7 @@ const mapState = state => {
 
   return {
     error: error,
-    successfulRegistration: successfulRegistration,
+    successfulRegistration: successfulRegistration
   }
 }
 
@@ -117,7 +117,7 @@ const mapDispatch = dispatch => {
   return {
     registerUser: (email, password, firstName, lastName) =>
       dispatch(registerUserThunk(email, password, firstName, lastName)),
-    clearError: () => dispatch(clearError()),
+    clearError: () => dispatch(clearError())
   }
 }
 

@@ -1,37 +1,37 @@
 import axios from "axios"
-
-// ACTION TYPES
-const LOG_IN_USER = "LOG_IN_USER"
-const REGISTER_USER = "REGISTER_USER"
-const LOGIN_ERROR = "LOGIN_ERROR"
-const REGISTRATION_ERROR = "REGISTRATION_ERROR"
-const CLEAR_ERROR = "CLEAR_ERROR"
+import {
+  LOG_IN_USER,
+  REGISTER_USER,
+  LOGIN_ERROR,
+  REGISTRATION_ERROR,
+  CLEAR_ERROR
+} from "../../actionTypes"
 
 // ACTION CREATORS
 const logInUser = userInfo => {
   return {
     type: LOG_IN_USER,
-    payload: userInfo,
+    payload: userInfo
   }
 }
 
 const registerUser = () => {
   return {
-    type: REGISTER_USER,
+    type: REGISTER_USER
   }
 }
 
 const loginError = error => {
   return {
     type: LOGIN_ERROR,
-    payload: error,
+    payload: error
   }
 }
 
 const registrationError = error => {
   return {
     type: REGISTRATION_ERROR,
-    payload: error,
+    payload: error
   }
 }
 
@@ -46,7 +46,7 @@ export const logInUserThunk = (email, password) => async dispatch => {
   try {
     const credentials = {
       email: email,
-      password: password,
+      password: password
     }
 
     const { data } = await axios.post(
@@ -61,7 +61,7 @@ export const logInUserThunk = (email, password) => async dispatch => {
       dispatch(logInUser(data))
     }
   } catch (error) {
-    //console.log(error)
+    console.log(error)
   }
 }
 
@@ -71,13 +71,13 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
       email: email,
       password: password,
       firstName: firstName,
-      lastName: lastName,
+      lastName: lastName
     }
 
     const config = {
       headers: {
-        "Content-Type": "application/json",
-      },
+        "Content-Type": "application/json"
+      }
     }
 
     const { data } = await axios.post(
@@ -98,7 +98,6 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
   }
 }
 
-
 const initialState = {
   error: null,
   successfulLogin: false,
@@ -117,25 +116,25 @@ const reducer = (state = initialState, action) => {
         email: email,
         id: id,
         error: null,
-        successfulLogin: true,
+        successfulLogin: true
       }
     case REGISTER_USER:
       return {
         ...state,
         error: null,
-        successfulRegistration: true,
+        successfulRegistration: true
       }
     case LOGIN_ERROR:
       return {
         ...state,
         error: action.payload,
-        successfulLogin: false,
+        successfulLogin: false
       }
     case REGISTRATION_ERROR:
       return {
         ...state,
         error: action.payload,
-        successfulRegistration: false,
+        successfulRegistration: false
       }
     case CLEAR_ERROR:
       return {

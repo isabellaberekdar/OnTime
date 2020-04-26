@@ -1,9 +1,9 @@
 import { combineReducers, applyMiddleware, createStore } from "redux"
 import { composeWithDevTools } from "redux-devtools-extension"
-import { persistStore, persistReducer, persistCombineReducers, autoRehydrate } from "redux-persist"
-import thunkMiddleware from "redux-thunk"
+import { persistStore, persistCombineReducers,  } from "redux-persist"
 import { AsyncStorage } from "react-native"
 import { PURGE } from "redux-persist"
+import thunkMiddleware from "redux-thunk"
 
 import * as reducers from "../reducers"
 
@@ -17,7 +17,7 @@ export const logout = () => {
   return {
     type: PURGE,
     key: "root",
-    result: () => null, // Function expected on the submitted action.
+    result: () => null, 
   }
 }
 
