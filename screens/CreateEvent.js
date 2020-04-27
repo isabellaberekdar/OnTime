@@ -8,10 +8,10 @@ import DateTimePickerModal from "react-native-modal-datetime-picker"
 
 class CreateEvent extends React.Component {
   state = {
-    eventName: "test public",
+    eventName: "",
     startDate: new Date(Date.now()),
     endDate: new Date(Date.now()),
-    eventLocation: "home",
+    eventLocation: "",
     publicEvent: false,
     repeatWeekly: false,
     showStartDatePicker: false,

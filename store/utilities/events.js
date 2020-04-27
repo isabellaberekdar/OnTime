@@ -100,6 +100,56 @@ export const createEventThunk = eventInfo => async dispatch => {
   }
 }
 
+export const editEventThunk = eventInfo => async dispatch => {
+/* const eventInfo = {
+  {
+    "ownerId": 1,
+    "eventId": 27,
+    "public": true
+    "changes": {
+        "locationName": "Baruch College Library",
+        "lat": 40.7404,
+        "lng": -73.9832
+        ....
+    }}}
+*/
+  try {
+    const type = eventInfo.public ? "public" : "private"
+    const { data } = await axios.put(
+      `https://fair-hallway-265819.appspot.com/api/events/${type}/edit`,
+      eventInfo
+    )
+/*  */
+/*  */
+/*  */
+if (!data.eventName) {
+      dispatch(createEventError())
+    } else {
+      const newEvent = {
+        id: data.id,
+        endDate: data.endDate,
+        eventName: data.eventName,
+        lat: data.lat,
+        lng: data.lng,
+        locationName: data.locationName,
+        ownerId: data.ownerId,
+        repeatWeekly: data.repeatWeekly,
+        startDate: data.startDate,
+        time: data.time,
+        weeklySchedule: data.weeklySchedule,
+        ...(type === "private" && { code: data.code })
+      }
+      type === "public"
+        ? dispatch(createPublicEvent(newEvent))
+        : dispatch(createPrivateEvent(newEvent))
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+
 const initialState = {
   error: false,
   private: [],
