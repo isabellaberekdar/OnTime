@@ -7,8 +7,8 @@ import { connect } from "react-redux";
 import { Event } from "../components";
 import { logout } from "../store";
 
-import screen1 from "./drawer/screen1";
-import screen2 from "./drawer/screen2";
+import Screen1 from "./drawer/screen1";
+import Screen2 from "./drawer/screen2";
 
 const Drawer = createDrawerNavigator();
 
@@ -24,8 +24,8 @@ const Home = props => {
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
       <Drawer.Navigator>
-        <Drawer.Screen name="Screen 1" component={screen1} />
-        <Drawer.Screen name="Screen 2" component={screen2} />
+        <Drawer.Screen name="Screen 1" component={Screen1} />
+        <Drawer.Screen name="Screen 2" component={Screen2} />
       </Drawer.Navigator>
       <Text style={styles.text}>Your Events:</Text>
       <Button onPress={() => navigation.navigate("CreateEvent")}>

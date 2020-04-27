@@ -3,10 +3,10 @@ import { View, Text } from "react-native";
 
 import { styles } from "./styles.js";
 
-Screen1 = () => (
+Screen2 = () => (
   <View style={styles.center}>
     <Text style={styles.title}>Screen 2</Text>
   </View>
 );
 
-export default Screen1;
+export default Screen2;
