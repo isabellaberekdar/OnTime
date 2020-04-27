@@ -21,8 +21,8 @@ const Home = props => {
       {events.length > 0 ? (
         <FlatList
           data={events}
+          keyExtractor={() => `${Math.floor(Math.random() * 1000000)}`}
           renderItem={event => <Event event={event.item} userId={id} />}
-          keyExtractor={event => `${event.id}`}
           style={styles.eventsList}
           showsVerticalScrollIndicator={false}
         />
