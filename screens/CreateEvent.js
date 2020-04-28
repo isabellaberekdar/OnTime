@@ -1,9 +1,15 @@
 import React from "react"
-import { View, StyleSheet, Text, TouchableNativeFeedbackBase } from "react-native"
+import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput, Switch } from "react-native-paper"
 import { connect } from "react-redux"
 import { createEventThunk, clearError } from "../store/utilities/events"
 import { WeekdayPicker } from "../components"
+import {
+  formatDateEnglishEST,
+  formatDateTimeEnglishEST,
+  formatDateEST,
+  formatTimeEST
+} from "../utilities"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 
 class CreateEvent extends React.Component {
@@ -40,6 +46,10 @@ class CreateEvent extends React.Component {
   }
 
   //TODO: validation
+  // event name not empty
+  // event location not empty
+  // start date must be before or equal to end date
+  // valid location (must get coordinates)
   create = () => {
     if (true) {
       const { createEvent, userId } = this.props
@@ -52,10 +62,10 @@ class CreateEvent extends React.Component {
         repeatWeekly,
         publicEvent
       } = this.state
-      // startDate is in format: 2020-04-23T22:05:43.170Z
-      const start = startDate.toISOString().substring(0, 10)
-      let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
-      const time = startDate.toISOString().substring(11, 19)
+
+      const start = formatDateEST(startDate)
+      const time = formatTimeEST(startDate)
+      const end = !repeatWeekly ? start : formatDateEST(endDate)
 
       const eventInfo = {
         ownerId: userId,
@@ -80,7 +90,7 @@ class CreateEvent extends React.Component {
     const daysList = { Su: 0, Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6 }
     const dayIndex = daysList[newDay]
 
-    // TODO: should also check for endDay if repeatWeekly is checked
+    // TODO: should also check for endDate if repeatWeekly is checked
     // can't remove day if it is the chosen start date (alarm must ring on that day)
     if (dayIndex != startDate.getDay()) {
       const newValue = days[dayIndex] == "0" ? "1" : "0"
@@ -131,11 +141,11 @@ class CreateEvent extends React.Component {
           style={styles.input}
         />
         <Button onPress={() => this.setState({ showStartDatePicker: !showStartDatePicker })}>
-          {`Start Date: ${startDate.toDateString()}`}
+          {`Starts: ${formatDateTimeEnglishEST(startDate)}`}
         </Button>
         {repeatWeekly && (
           <Button onPress={() => this.setState({ showEndDatePicker: !showEndDatePicker })}>
-            {`End Date: ${endDate.toDateString()}`}
+            {`Ends: ${formatDateEnglishEST(endDate)}`}
           </Button>
         )}
         {/* TODO: Dropdown?: alarm sound, vibration? */}

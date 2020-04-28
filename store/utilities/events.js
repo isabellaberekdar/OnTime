@@ -2,7 +2,8 @@ import axios from "axios"
 import {
   LOG_IN_USER,
   SET_EVENTS,
-  EDIT_EVENT,
+  EDIT_PUBLIC_EVENT,
+  EDIT_PRIVATE_EVENT,
   EDIT_EVENT_ERROR,
   CREATE_PUBLIC_EVENT,
   CREATE_PRIVATE_EVENT,
@@ -29,6 +30,20 @@ const createPrivateEvent = newEvent => {
   return {
     type: CREATE_PRIVATE_EVENT,
     payload: newEvent
+  }
+}
+
+const editPublicEvent = event => {
+  return {
+    type: EDIT_PUBLIC_EVENT,
+    payload:event
+  }
+}
+
+const editPrivateEvent = event => {
+  return {
+    type: EDIT_PRIVATE_EVENT,
+    payload: event
   }
 }
 
@@ -74,6 +89,7 @@ export const createEventThunk = eventInfo => async dispatch => {
       `https://fair-hallway-265819.appspot.com/api/events/${type}/create`,
       eventInfo
     )
+
     if (!data.eventName) {
       dispatch(createEventError())
     } else {
@@ -101,7 +117,7 @@ export const createEventThunk = eventInfo => async dispatch => {
 }
 
 export const editEventThunk = eventInfo => async dispatch => {
-/* const eventInfo = {
+  /* const eventInfo = {
   {
     "ownerId": 1,
     "eventId": 27,
@@ -114,16 +130,17 @@ export const editEventThunk = eventInfo => async dispatch => {
     }}}
 */
   try {
-    const type = eventInfo.public ? "public" : "private"
+    const type = eventInfo.private ? "private" : "public"
+    console.log('eventInfo b4 call', eventInfo)
+    delete  eventInfo["private"];
+
     const { data } = await axios.put(
       `https://fair-hallway-265819.appspot.com/api/events/${type}/edit`,
       eventInfo
     )
-/*  */
-/*  */
-/*  */
-if (!data.eventName) {
-      dispatch(createEventError())
+    console.log(data)
+    if (data.eventName) {
+      dispatch(editEventError())
     } else {
       const newEvent = {
         id: data.id,
@@ -139,16 +156,12 @@ if (!data.eventName) {
         weeklySchedule: data.weeklySchedule,
         ...(type === "private" && { code: data.code })
       }
-      type === "public"
-        ? dispatch(createPublicEvent(newEvent))
-        : dispatch(createPrivateEvent(newEvent))
+      type === "private" ? dispatch(editPublicEvent(newEvent)) : dispatch(editPrivateEvent(newEvent))
     }
   } catch (error) {
     console.log(error)
   }
 }
-
-
 
 const initialState = {
   error: false,
@@ -199,6 +212,27 @@ const eventsReducer = (state = initialState, action) => {
         error: null,
         successfulEventCreation: false,
         successfulEventEdit: false
+      }
+    case EDIT_PUBLIC_EVENT:
+      console.log('&&&', action.payload)
+      return {
+        ...state,
+        error: null,
+        successfulEventEdit: true,
+        public: state.public.map(event => (event.id === action.payload.id ? action.payload : event))
+      }
+    case EDIT_PRIVATE_EVENT:
+      console.log('ZZZZ', action.payload)
+      console.log(state.private.map(event =>
+        event.id === action.payload.id ? action.payload : event))
+        action.payload.id = 138
+      return {
+        ...state,
+        error: null,
+        successfulEventEdit: true,
+        private: state.private.map(event =>
+          event.id === action.payload.id ? action.payload : event
+        )
       }
     default:
       return state

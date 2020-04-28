@@ -5,8 +5,7 @@ import { editEventThunk, clearError } from "../store/utilities/events"
 import { connect } from "react-redux"
 import { WeekdayPicker } from "../components"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-
-/* Note: this is copied from CreateEvent, edit is not implemented yet */
+import moment from "moment"
 
 class EditEvent extends React.Component {
   constructor(props) {
@@ -29,8 +28,8 @@ class EditEvent extends React.Component {
 
     this.state = {
       eventName: eventName,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate: moment(`${startDate} ${time}`, "YYYY-MM-DD hh:mm A").toDate(),
+      endDate: moment(`${endDate} ${time}`, "YYYY-MM-DD hh:mm A").toDate(),
       eventLocation: locationName,
       publicEvent: code === undefined,
       repeatWeekly: repeatWeekly,
@@ -44,16 +43,83 @@ class EditEvent extends React.Component {
     this.props.clearError()
   }
 
-  // If event created successfully, redirect back to Home screen
+  // If event edited successfully, redirect back to Home screen
   componentDidUpdate(prevProps) {
-    const { navigation, successfulEventCreation } = this.props
-    if (
-      prevProps.successfulEventCreation != successfulEventCreation &&
-      successfulEventCreation === true
-    ) {
+    const { navigation, successfulEventEdit } = this.props
+    if (prevProps.successfulEventEdit != successfulEventEdit && successfulEventEdit === true) {
       navigation.navigate("Home")
     }
   }
+  
+  
+//TODO: validation
+edit = () => {
+  if (true) {
+    const { editEvent, userId } = this.props
+    const {
+      eventLocation,
+      days,
+      startDate,
+      endDate,
+      eventName,
+      repeatWeekly,
+      publicEvent
+    } = this.state
+
+    // startDate is in format: 2020-04-23T22:05:43.170Z
+    // date/time in backend will be in UTC
+    const start = startDate.toISOString().substring(0, 10)
+    let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
+    const time = startDate.toISOString().substring(11, 19)
+    
+    const eventInfo = {
+      ownerId: userId,
+      eventId: this.props.route.params.id,
+      changes: {
+        eventName: eventName,
+        startDate: start,
+        endDate: end,
+        repeatWeekly: repeatWeekly,
+        weeklySchedule: days,
+        time: time,
+        locationName: eventLocation,
+        private: !publicEvent,
+        lat: 1,
+        lng: 1
+      }
+    }
+
+    editEvent(eventInfo)
+  }
+}
+
+
+  setDays = newDay => {
+    const { days, startDate, endDate, repeatWeekly } = this.state
+    const daysList = { Su: 0, Mo: 1, Tu: 2, We: 3, Th: 4, Fr: 5, Sa: 6 }
+    const dayIndex = daysList[newDay]
+
+    // TODO: should also check for endDay if repeatWeekly is checked
+    // can't remove day if it is the chosen start date (alarm must ring on that day)
+    if (dayIndex != startDate.getDay()) {
+      const newValue = days[dayIndex] == "0" ? "1" : "0"
+      const newDaysString = days.substring(0, dayIndex) + newValue + days.substring(dayIndex + 1)
+      this.setState({ days: newDaysString })
+    }
+  }
+
+
+  setDate = date => {
+    // Update the days string so that only the new day is highlighted
+    let updatedDays = this.state.days
+    let newDayString = "0000000"
+    const dayIndex = date.getDay()
+    updatedDays = newDayString.substring(0, dayIndex) + "1" + newDayString.substring(dayIndex + 1)
+    this.setState({ startDate: date, showStartDatePicker: false, days: updatedDays })
+  }
+
+
+  
 
   render() {
     const {
@@ -67,6 +133,15 @@ class EditEvent extends React.Component {
       endDate,
       days
     } = this.state
+
+    const gmtStartDateTime = moment.utc(startDate)
+    const localStartDateTime = gmtStartDateTime.local().format('YYYY-MMM-DD h:mm A');
+
+    const gmtEndDateTime = moment.utc(endDate)
+    const localEndDateTime = gmtEndDateTime.local().format('YYYY-MMM-DD h:mm A');
+
+    console.log('*', localStartDateTime)
+
     return (
       <View style={styles.container}>
         <WeekdayPicker daysString={days} onPress={this.setDays} />
@@ -88,11 +163,11 @@ class EditEvent extends React.Component {
           style={styles.input}
         />
         <Button onPress={() => this.setState({ showStartDatePicker: !showStartDatePicker })}>
-          {`Start Date: ${startDate.toDateString()}`}
+          {`Start Date: ${localStartDateTime}`}
         </Button>
         {repeatWeekly && (
           <Button onPress={() => this.setState({ showEndDatePicker: !showEndDatePicker })}>
-            {`End Date: ${endDate.toDateString()}`}
+            {`End Date: ${localEndDateTime}`}
           </Button>
         )}
         {/* TODO: Dropdown?: alarm sound, vibration? */}
@@ -111,8 +186,9 @@ class EditEvent extends React.Component {
           minimumDate={startDate}
           value={endDate}
         />
+         {/*
         <Text>{publicEvent ? "Public Event" : "Private Event"}</Text>
-        {/*        
+               
           <Switch
             value={publicEvent}
             onValueChange={() => this.setState({ publicEvent: !publicEvent })}
@@ -124,7 +200,7 @@ class EditEvent extends React.Component {
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
         <Text>{this.props.error}</Text>
-        <Button onPress={() => this.create()}>Create Event</Button>
+        <Button onPress={() => this.edit()}>Edit Event</Button>
       </View>
     )
   }
