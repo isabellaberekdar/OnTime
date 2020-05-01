@@ -67,9 +67,11 @@ const mapState = state => {
     id = state.userInfo.id
     error = state.userInfo.error
   }
+
+
   return {
     publicEvents: events.public ?? [],
-    privateEvents:  events.private ?? [],
+    privateEvents: events.private ?? [],
     firstName: firstName,
     id: id,
     error: error

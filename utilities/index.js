@@ -54,15 +54,23 @@ function formatDateEnglishEST(date) {
   return moment(date).format("dddd MMMM DD YYYY")
 }
 
-// Format time from a UTC Date object to: 2020-04-28
+// Format time from a UTC Date object to a date: 2020-04-28
 function formatDateEST(date) {
   return moment(date).format("YYYY-MM-DD")
 }
 
-// Format time from a UTC Date object to: 06:28:00
+// Format time from a UTC Date object to a timestamp: 06:28:00
 function formatTimeEST(date) {
   return moment(date).format("HH:mm") + ":00"
 }
+
+// Convert from a date and time in EST to a UTC Date object
+// 2020-04-28 and 06:28:00 to: 
+function getUTCDate(date, time) {
+  return moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A").toDate()
+}
+
+
 
 export {
   binaryToStringSchedule,
@@ -70,5 +78,6 @@ export {
   formatDateTimeEnglishEST,
   formatDateEnglishEST,
   formatDateEST,
-  formatTimeEST
+  formatTimeEST,
+  getUTCDate
 }

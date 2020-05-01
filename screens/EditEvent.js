@@ -5,8 +5,14 @@ import { editEventThunk, clearError } from "../store/utilities/events"
 import { connect } from "react-redux"
 import { WeekdayPicker } from "../components"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-import moment from "moment"
 
+import {
+  formatDateEnglishEST,
+  formatDateTimeEnglishEST,
+  formatDateEST,
+  formatTimeEST,
+  getUTCDate
+} from "../utilities"
 class EditEvent extends React.Component {
   constructor(props) {
     super(props)
@@ -23,16 +29,16 @@ class EditEvent extends React.Component {
       repeatWeekly,
       startDate,
       time,
-      weeklySchedule
+      weeklySchedule,
+      privateEvent
     } = props.route.params
-
     this.state = {
       eventName: eventName,
-      startDate: moment(`${startDate} ${time}`, "YYYY-MM-DD hh:mm A").toDate(),
-      endDate: moment(`${endDate} ${time}`, "YYYY-MM-DD hh:mm A").toDate(),
+      startDate: getUTCDate(startDate, time),
+      endDate: getUTCDate(endDate, time),
       eventLocation: locationName,
-      publicEvent: code === undefined,
-      repeatWeekly: repeatWeekly,
+      publicEvent: !privateEvent,
+      repeatWeekly: repeatWeekly == 0 ? false : true,
       showStartDatePicker: false,
       showEndDatePicker: false,
       days: weeklySchedule
@@ -50,49 +56,45 @@ class EditEvent extends React.Component {
       navigation.navigate("Home")
     }
   }
-  
-  
-//TODO: validation
-edit = () => {
-  if (true) {
-    const { editEvent, userId } = this.props
-    const {
-      eventLocation,
-      days,
-      startDate,
-      endDate,
-      eventName,
-      repeatWeekly,
-      publicEvent
-    } = this.state
 
-    // startDate is in format: 2020-04-23T22:05:43.170Z
-    // date/time in backend will be in UTC
-    const start = startDate.toISOString().substring(0, 10)
-    let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
-    const time = startDate.toISOString().substring(11, 19)
-    
-    const eventInfo = {
-      ownerId: userId,
-      eventId: this.props.route.params.id,
-      changes: {
-        eventName: eventName,
-        startDate: start,
-        endDate: end,
-        repeatWeekly: repeatWeekly,
-        weeklySchedule: days,
-        time: time,
-        locationName: eventLocation,
-        private: !publicEvent,
-        lat: 1,
-        lng: 1
+  //TODO: validation
+  edit = () => {
+    if (true) {
+      const { editEvent, userId } = this.props
+      const {
+        eventLocation,
+        days,
+        startDate,
+        endDate,
+        eventName,
+        repeatWeekly,
+        publicEvent
+      } = this.state
+
+      // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
+      const start = formatDateEST(startDate)
+      const time = formatTimeEST(startDate)
+      const end = !repeatWeekly ? start : formatDateEST(endDate)
+      const eventInfo = {
+        ownerId: userId,
+        eventId: this.props.route.params.id,
+        public: publicEvent,
+        changes: {
+          eventName: eventName,
+          startDate: start,
+          endDate: end,
+          repeatWeekly: repeatWeekly,
+          weeklySchedule: days,
+          time: time,
+          locationName: eventLocation,
+          lat: 1,
+          lng: 1
+        }
       }
+
+      editEvent(eventInfo)
     }
-
-    editEvent(eventInfo)
   }
-}
-
 
   setDays = newDay => {
     const { days, startDate, endDate, repeatWeekly } = this.state
@@ -108,7 +110,6 @@ edit = () => {
     }
   }
 
-
   setDate = date => {
     // Update the days string so that only the new day is highlighted
     let updatedDays = this.state.days
@@ -117,9 +118,6 @@ edit = () => {
     updatedDays = newDayString.substring(0, dayIndex) + "1" + newDayString.substring(dayIndex + 1)
     this.setState({ startDate: date, showStartDatePicker: false, days: updatedDays })
   }
-
-
-  
 
   render() {
     const {
@@ -133,14 +131,6 @@ edit = () => {
       endDate,
       days
     } = this.state
-
-    const gmtStartDateTime = moment.utc(startDate)
-    const localStartDateTime = gmtStartDateTime.local().format('YYYY-MMM-DD h:mm A');
-
-    const gmtEndDateTime = moment.utc(endDate)
-    const localEndDateTime = gmtEndDateTime.local().format('YYYY-MMM-DD h:mm A');
-
-    console.log('*', localStartDateTime)
 
     return (
       <View style={styles.container}>
@@ -163,11 +153,11 @@ edit = () => {
           style={styles.input}
         />
         <Button onPress={() => this.setState({ showStartDatePicker: !showStartDatePicker })}>
-          {`Start Date: ${localStartDateTime}`}
+          {`Start Date: ${formatDateTimeEnglishEST(startDate)}`}
         </Button>
         {repeatWeekly && (
           <Button onPress={() => this.setState({ showEndDatePicker: !showEndDatePicker })}>
-            {`End Date: ${localEndDateTime}`}
+            {`Ends: ${formatDateEnglishEST(endDate)}`}
           </Button>
         )}
         {/* TODO: Dropdown?: alarm sound, vibration? */}
@@ -186,14 +176,6 @@ edit = () => {
           minimumDate={startDate}
           value={endDate}
         />
-         {/*
-        <Text>{publicEvent ? "Public Event" : "Private Event"}</Text>
-               
-          <Switch
-            value={publicEvent}
-            onValueChange={() => this.setState({ publicEvent: !publicEvent })}
-          /> 
-        */}
         <Text>{repeatWeekly ? "Repeating Event" : "One-Time Event"}</Text>
         <Switch
           value={repeatWeekly}
