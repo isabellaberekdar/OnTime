@@ -1,3 +1,5 @@
+import moment from "moment"
+
 // Convert weekly schedule from binary string to a list of days. Ex: "1000110" -> "Sun Thu Fri"
 function binaryToStringSchedule(binarySchedule) {
   let daysList = ""
@@ -43,6 +45,39 @@ function convert24HourTime(timeString) {
   return time
 }
 
-// Convert a string like "10:11 AM" to "10:11:00"
+// Format time from a UTC Date object to: Tuesday 28 April 2020 6:06PM
+function formatDateTimeEnglishEST(date) {
+  return moment(date).format("dddd MMMM DD YYYY h:mm A")
+}
+// Format time from a UTC Date object to: Tuesday 28 April 2020
+function formatDateEnglishEST(date) {
+  return moment(date).format("dddd MMMM DD YYYY")
+}
 
-export { binaryToStringSchedule, convert24HourTime }
+// Format time from a UTC Date object to a date: 2020-04-28
+function formatDateEST(date) {
+  return moment(date).format("YYYY-MM-DD")
+}
+
+// Format time from a UTC Date object to a timestamp: 06:28:00
+function formatTimeEST(date) {
+  return moment(date).format("HH:mm") + ":00"
+}
+
+// Convert from a date and time in EST to a UTC Date object
+// 2020-04-28 and 06:28:00 to: 
+function getUTCDate(date, time) {
+  return moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A").toDate()
+}
+
+
+
+export {
+  binaryToStringSchedule,
+  convert24HourTime,
+  formatDateTimeEnglishEST,
+  formatDateEnglishEST,
+  formatDateEST,
+  formatTimeEST,
+  getUTCDate
+}

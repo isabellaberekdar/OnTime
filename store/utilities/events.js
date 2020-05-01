@@ -2,7 +2,8 @@ import axios from "axios"
 import {
   LOG_IN_USER,
   SET_EVENTS,
-  EDIT_EVENT,
+  EDIT_PUBLIC_EVENT,
+  EDIT_PRIVATE_EVENT,
   EDIT_EVENT_ERROR,
   CREATE_PUBLIC_EVENT,
   CREATE_PRIVATE_EVENT,
@@ -29,6 +30,20 @@ const createPrivateEvent = newEvent => {
   return {
     type: CREATE_PRIVATE_EVENT,
     payload: newEvent
+  }
+}
+
+const editPublicEvent = event => {
+  return {
+    type: EDIT_PUBLIC_EVENT,
+    payload: event
+  }
+}
+
+const editPrivateEvent = event => {
+  return {
+    type: EDIT_PRIVATE_EVENT,
+    payload: event
   }
 }
 
@@ -69,12 +84,12 @@ export const getEventsThunk = userId => async dispatch => {
 export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.private ? "private" : "public"
-
     const { data } = await axios.post(
       `https://fair-hallway-265819.appspot.com/api/events/${type}/create`,
       eventInfo
     )
-    if (!data.eventName) {
+
+    if (data.eventName == undefined) {
       dispatch(createEventError())
     } else {
       const newEvent = {
@@ -89,11 +104,46 @@ export const createEventThunk = eventInfo => async dispatch => {
         startDate: data.startDate,
         time: data.time,
         weeklySchedule: data.weeklySchedule,
-        ...(type === "private" && { code: data.code })
+        code: data.code,
+        privateEvent: type == "private"
       }
+
       type === "public"
         ? dispatch(createPublicEvent(newEvent))
         : dispatch(createPrivateEvent(newEvent))
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const editEventThunk = eventInfo => async dispatch => {
+  try {
+    const type = eventInfo.public == true ? "public" : "private"
+    delete eventInfo["public"]
+
+    const { data } = await axios.put(
+      `https://fair-hallway-265819.appspot.com/api/events/${type}/edit`,
+      eventInfo
+    )
+
+    //TODO: handle notifications
+
+    if (!data.eventName) {
+      dispatch(editEventError())
+    } else {
+      const editedEvent = {
+        ...data,
+        startDate: eventInfo.changes.startDate,
+        endDate: eventInfo.changes.endDate,
+        privateEvent: type == "private"
+      }
+
+      // remove the notification object that came from the response object
+      delete editedEvent["notification"]
+      type === "public"
+        ? dispatch(editPublicEvent(editedEvent))
+        : dispatch(editPrivateEvent(editedEvent))
     }
   } catch (error) {
     console.log(error)
@@ -113,10 +163,17 @@ const eventsReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOG_IN_USER:
     case SET_EVENTS:
+      // add a key into each event object that states whether or not the event is private
+      const privateEvents = action.payload.events.private.map(event => {
+        return { ...event, privateEvent: true }
+      })
+      const publicEvents = action.payload.events.public.map(event => {
+        return { ...event, privateEvent: false }
+      })
       return {
         ...state,
-        private: action.payload.events.private,
-        public: action.payload.events.public
+        private: privateEvents,
+        public: publicEvents
       }
     // add new event to the list of events in the store
     case CREATE_PUBLIC_EVENT:
@@ -149,6 +206,22 @@ const eventsReducer = (state = initialState, action) => {
         error: null,
         successfulEventCreation: false,
         successfulEventEdit: false
+      }
+    case EDIT_PUBLIC_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulEventEdit: true,
+        public: state.public.map(event => (event.id === action.payload.id ? action.payload : event))
+      }
+    case EDIT_PRIVATE_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulEventEdit: true,
+        private: state.private.map(event =>
+          event.id === action.payload.id ? action.payload : event
+        )
       }
     default:
       return state

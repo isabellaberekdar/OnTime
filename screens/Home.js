@@ -67,24 +67,16 @@ const styles = StyleSheet.create({
 });
 
 const mapState = state => {
-  let events,
-    id,
-    firstName,
-    error = null;
-  if (state) {
-    events = state.events;
-    firstName = state.userInfo.firstName;
-    id = state.userInfo.id;
-    error = state.userInfo.error;
-  }
+  const { events, userInfo } = state
+
   return {
     publicEvents: events.public ?? [],
     privateEvents: events.private ?? [],
-    firstName: firstName,
-    id: id,
-    error: error
-  };
-};
+    firstName: userInfo.firstName ?? "unknown",
+    id: userInfo.id,
+    error: userInfo.error
+  }
+}
 
 const mapDispatch = dispatch => {
   return {

@@ -4,7 +4,7 @@ import { Button, Card } from "react-native-paper"
 import { useNavigation } from "@react-navigation/native"
 import { binaryToStringSchedule, convert24HourTime } from "../utilities"
 
-const Event = (props) => {
+const Event = props => {
   const {
     id,
     ownerId,
@@ -18,10 +18,10 @@ const Event = (props) => {
     lat,
     lng,
     code,
+    publicEvent
   } = props.event
   const { userId } = props
   const navigation = useNavigation()
-
   return (
     <Card style={styles.event} onPress={() => navigation.navigate("Event", props.event)}>
       <Card.Title title={eventName} />
@@ -40,8 +40,8 @@ const Event = (props) => {
 
 const styles = StyleSheet.create({
   event: {
-    marginVertical: "1%",
-  },
+    marginVertical: "1%"
+  }
 })
 
 export default Event

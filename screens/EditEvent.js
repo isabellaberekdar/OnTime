@@ -1,50 +1,66 @@
 import React from "react"
 import { View, StyleSheet, Text, TouchableNativeFeedbackBase } from "react-native"
 import { Button, TextInput, Switch } from "react-native-paper"
+import { editEventThunk, clearError } from "../store/utilities/events"
 import { connect } from "react-redux"
-import { createEventThunk, clearError } from "../store/utilities/events"
 import { WeekdayPicker } from "../components"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 
-/* Note: this is copied from CreateEvent, edit is not implemented yet */
+import {
+  formatDateEnglishEST,
+  formatDateTimeEnglishEST,
+  formatDateEST,
+  formatTimeEST,
+  getUTCDate
+} from "../utilities"
+class EditEvent extends React.Component {
+  constructor(props) {
+    super(props)
 
-class CreateEvent extends React.Component {
-  state = {
-    eventName: "test public",
-    startDate: new Date(Date.now()),
-    endDate: new Date(Date.now()),
-    eventLocation: "home",
-    publicEvent: false,
-    repeatWeekly: false,
-    showStartDatePicker: false,
-    showEndDatePicker: false,
-    // start day picker on top with the current day highlighted (because current date is the default)
-    // String format: Su Mo Tu We Th Fr Sa
-    days:
-      "0000000".substring(0, new Date(Date.now()).getDay()) +
-      "1" +
-      "0000000".substring(new Date(Date.now()).getDay() + 1)
+    const {
+      code,
+      endDate,
+      eventName,
+      id,
+      lat,
+      lng,
+      locationName,
+      ownerId,
+      repeatWeekly,
+      startDate,
+      time,
+      weeklySchedule,
+      privateEvent
+    } = props.route.params
+    this.state = {
+      eventName: eventName,
+      startDate: getUTCDate(startDate, time),
+      endDate: getUTCDate(endDate, time),
+      eventLocation: locationName,
+      publicEvent: !privateEvent,
+      repeatWeekly: repeatWeekly == 0 ? false : true,
+      showStartDatePicker: false,
+      showEndDatePicker: false,
+      days: weeklySchedule
+    }
   }
 
   componentDidMount() {
     this.props.clearError()
   }
 
-  // If event created successfully, redirect back to Home screen
+  // If event edited successfully, redirect back to Home screen
   componentDidUpdate(prevProps) {
-    const { navigation, successfulEventCreation } = this.props
-    if (
-      prevProps.successfulEventCreation != successfulEventCreation &&
-      successfulEventCreation === true
-    ) {
+    const { navigation, successfulEventEdit } = this.props
+    if (prevProps.successfulEventEdit != successfulEventEdit && successfulEventEdit === true) {
       navigation.navigate("Home")
     }
   }
 
   //TODO: validation
-  create = () => {
+  edit = () => {
     if (true) {
-      const { createEvent, userId } = this.props
+      const { editEvent, userId } = this.props
       const {
         eventLocation,
         days,
@@ -54,26 +70,29 @@ class CreateEvent extends React.Component {
         repeatWeekly,
         publicEvent
       } = this.state
-      // startDate is in format: 2020-04-23T22:05:43.170Z
-      const start = startDate.toISOString().substring(0, 10)
-      let end = !repeatWeekly ? start : endDate.toISOString().substring(0, 10)
-      const time = startDate.toISOString().substring(11, 19)
 
+      // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
+      const start = formatDateEST(startDate)
+      const time = formatTimeEST(startDate)
+      const end = !repeatWeekly ? start : formatDateEST(endDate)
       const eventInfo = {
         ownerId: userId,
-        eventName: eventName,
-        startDate: start,
-        endDate: end,
-        repeatWeekly: repeatWeekly,
-        weeklySchedule: days,
-        time: time,
-        locationName: eventLocation,
-        private: !publicEvent,
-        lat: 1,
-        lng: 1
+        eventId: this.props.route.params.id,
+        public: publicEvent,
+        changes: {
+          eventName: eventName,
+          startDate: start,
+          endDate: end,
+          repeatWeekly: repeatWeekly,
+          weeklySchedule: days,
+          time: time,
+          locationName: eventLocation,
+          lat: 1,
+          lng: 1
+        }
       }
 
-      createEvent(eventInfo)
+      editEvent(eventInfo)
     }
   }
 
@@ -112,6 +131,7 @@ class CreateEvent extends React.Component {
       endDate,
       days
     } = this.state
+
     return (
       <View style={styles.container}>
         <WeekdayPicker daysString={days} onPress={this.setDays} />
@@ -133,11 +153,11 @@ class CreateEvent extends React.Component {
           style={styles.input}
         />
         <Button onPress={() => this.setState({ showStartDatePicker: !showStartDatePicker })}>
-          {`Start Date: ${startDate.toDateString()}`}
+          {`Start Date: ${formatDateTimeEnglishEST(startDate)}`}
         </Button>
         {repeatWeekly && (
           <Button onPress={() => this.setState({ showEndDatePicker: !showEndDatePicker })}>
-            {`End Date: ${endDate.toDateString()}`}
+            {`Ends: ${formatDateEnglishEST(endDate)}`}
           </Button>
         )}
         {/* TODO: Dropdown?: alarm sound, vibration? */}
@@ -146,7 +166,7 @@ class CreateEvent extends React.Component {
           onConfirm={date => this.setDate(date)}
           onCancel={() => this.setState({ showStartDatePicker: false })}
           minimumDate={new Date(Date.now())}
-          value={new Date(Date.now())}
+          value={startDate}
           mode={"datetime"}
         />
         <DateTimePickerModal
@@ -156,18 +176,13 @@ class CreateEvent extends React.Component {
           minimumDate={startDate}
           value={endDate}
         />
-        <Text>{publicEvent ? "Public Event" : "Private Event"}</Text>
-        <Switch
-          value={publicEvent}
-          onValueChange={() => this.setState({ publicEvent: !publicEvent })}
-        />
         <Text>{repeatWeekly ? "Repeating Event" : "One-Time Event"}</Text>
         <Switch
           value={repeatWeekly}
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
         <Text>{this.props.error}</Text>
-        <Button onPress={() => this.create()}>Create Event</Button>
+        <Button onPress={() => this.edit()}>Edit Event</Button>
       </View>
     )
   }
@@ -188,19 +203,19 @@ const styles = StyleSheet.create({
 
 const mapState = state => {
   const { id } = state.userInfo
-  const { error, successfulEventCreation } = state.events
+  const { error, successfulEventEdit } = state.events
   return {
     error: error,
-    successfulEventCreation: successfulEventCreation,
+    successfulEventEdit: successfulEventEdit,
     userId: id
   }
 }
 
 const mapDispatch = dispatch => {
   return {
-    createEvent: eventInfo => dispatch(createEventThunk(eventInfo)),
+    editEvent: eventInfo => dispatch(editEventThunk(eventInfo)),
     clearError: () => dispatch(clearError())
   }
 }
 
-export default connect(mapState, mapDispatch)(CreateEvent)
+export default connect(mapState, mapDispatch)(EditEvent)
