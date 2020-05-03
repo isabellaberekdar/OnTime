@@ -25,32 +25,29 @@ import {
   Loading
 } from "./screens"
 
-const Drawer = createDrawerNavigator();
+const Drawer = createDrawerNavigator()
 const Stack = createStackNavigator()
 
-const navigationOption =
-{
-  colors:
-  {
-    primary: 'white',
-      background: 'white',
-      card: '#65509f',
-      text: 'white',
-      border: 'green',
+const navigationOption = {
+  colors: {
+    primary: "white",
+    background: "white",
+    card: "#65509f",
+    text: "white",
+    border: "green"
   }
 }
 
-function DrawerMenu ()
-{
+function DrawerMenu() {
   return (
-  <Drawer.Navigator initialRouteName={ "Home" } style={ styles.container }>
-    <Drawer.Screen name="Home" component={ Home } />
-    <Drawer.Screen name="Invites" component={ Invitations } />
-    <Drawer.Screen name="Public" component={ CreateEvent } />
-    <Drawer.Screen name="Private" component={ EditEvent } />
-    <Drawer.Screen name="Notification" component={ Notifications } />
-    <Drawer.Screen name="Change Password" component={ ForgotPassword } />
-  </Drawer.Navigator>
+    <Drawer.Navigator initialRouteName={"Home"} style={styles.container}>
+      <Drawer.Screen name='Home' component={Home} />
+      <Drawer.Screen name='Invites' component={Invitations} />
+      <Drawer.Screen name='Public' component={CreateEvent} />
+      <Drawer.Screen name='Private' component={EditEvent} />
+      <Drawer.Screen name='Notification' component={Notifications} />
+      <Drawer.Screen name='Change Password' component={ForgotPassword} />
+    </Drawer.Navigator>
   )
 }
 
@@ -73,15 +70,14 @@ function App() {
             <Stack.Screen name='Login' component={Login} />
             <Stack.Screen name='CreateEvent' component={CreateEvent} />
             <Stack.Screen name='EditEvent' component={EditEvent} />
+            <Stack.Screen name='Search' component={Search} />
             {/*
             <Stack.Screen name="Event" component={Event} />
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="Invitations" component={Invitations} />
             <Stack.Screen name="Notifications" component={Notifications} />
-            <Stack.Screen name="Search" component={Search} />
             */}
           </Stack.Navigator>
-
         </NavigationContainer>
       </PersistGate>
     </Provider>
@@ -89,12 +85,10 @@ function App() {
 }
 
 const styles = StyleSheet.create({
-  container:
-  {
+  container: {
     flex: 1,
-    backgroundColor: "#7B33FF",
-  },
-
+    backgroundColor: "#7B33FF"
+  }
 })
 
 export default App
