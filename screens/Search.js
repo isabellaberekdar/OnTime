@@ -1,9 +1,9 @@
 import React from "react"
 import { View, FlatList, StyleSheet, Text } from "react-native"
-import { Button, Searchbar } from "react-native-paper"
+import { searchEventsThunk, clearError } from "../store/utilities/events"
+import { Searchbar } from "react-native-paper"
 import { connect } from "react-redux"
 import { Event } from "../components"
-import { searchEventsThunk, clearError } from "../store/utilities/events"
 class Search extends React.Component {
   state = {
     query: ""
@@ -13,17 +13,26 @@ class Search extends React.Component {
     this.props.clearError()
   }
 
-/*   searchEvents = () => {
+  searchEvents = query => {
     console.log("Searching....")
-    //this.props.search()
-  } */
+    const searchQuery = {
+      eventName: this.state.query
+    }
+    this.props.search(searchQuery)
+  }
+
   render() {
-    const { search, searchResults, navigation } = this.props
-    const {query} = this.state
+    const { searchResults, error, id } = this.props
+    const { query } = this.state
     return (
-      <View style={styles.homeContainer}>
-        <Text style={styles.search}>Search</Text>
-        {searchResults.length > 0 && (
+      <View style={styles.container}>
+        <Searchbar
+          placeholder='Find events'
+          onChangeText={query => this.setState({ query })}
+          value={query}
+          onIconPress={() => this.searchEvents(query)}
+        />
+        {searchResults.length > 0 && !error && (
           <FlatList
             data={searchResults}
             keyExtractor={() => `${Math.floor(Math.random() * 1000000)}`}
@@ -32,25 +41,22 @@ class Search extends React.Component {
             showsVerticalScrollIndicator={false}
           />
         )}
-        <Searchbar
-          placeholder='Find events'
-          onChangeText={query => this.setState({ query })}
-          value={query}
-          onIconPress={() => search(query)}
-        />
+        <Text>{error}</Text>
       </View>
     )
   }
 }
 
 const styles = StyleSheet.create({
-  homeContainer: {
+  container: {
     flex: 1,
     alignItems: "center",
     paddingHorizontal: "5%",
-    paddingTop: "10%"
+    paddingTop: "15%",
+    paddingBottom: "5%"
   },
   eventsList: {
+    marginTop: "5%",
     height: "93%",
     width: "100%"
   },
@@ -60,10 +66,13 @@ const styles = StyleSheet.create({
 })
 
 const mapState = state => {
-  const { events } = state
+  const { events, userInfo } = state
 
   return {
-    searchResults: events.searchResults ?? []
+    searchResults: events.searchResults ?? [],
+    successfulSearch: events.successfulSearch,
+    error: events.error,
+    id: userInfo.id
   }
 }
 

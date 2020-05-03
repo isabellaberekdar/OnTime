@@ -63,7 +63,7 @@ function App() {
         }
       >
         <NavigationContainer>
-          <Stack.Navigator initialRouteName={"Search"} screenOptions={{ headerShown: false }}>
+          <Stack.Navigator initialRouteName={"Start"} screenOptions={{ headerShown: false }}>
             <Stack.Screen name='Start' component={Start} />
             <Stack.Screen name='Home' children={DrawerMenu} />
             <Stack.Screen name='Register' component={Register} />

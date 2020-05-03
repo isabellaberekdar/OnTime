@@ -8,6 +8,8 @@ import {
   CREATE_PUBLIC_EVENT,
   CREATE_PRIVATE_EVENT,
   CREATE_EVENT_ERROR,
+  SEARCH_ERROR,
+  SEARCH_EVENTS,
   CLEAR_ERROR
 } from "../../actionTypes"
 
@@ -47,6 +49,13 @@ const editPrivateEvent = event => {
   }
 }
 
+const searchEvents = searchResults => {
+  return {
+    payload: searchResults,
+    type: SEARCH_EVENTS
+  }
+}
+
 const createEventError = () => {
   return {
     payload: "There was an error creating your event.",
@@ -58,6 +67,13 @@ const editEventError = () => {
   return {
     payload: "There was an error editing your event.",
     type: EDIT_EVENT_ERROR
+  }
+}
+
+const searchError = error => {
+  return {
+    payload: error,
+    type: SEARCH_ERROR
   }
 }
 
@@ -150,15 +166,39 @@ export const editEventThunk = eventInfo => async dispatch => {
   }
 }
 
+export const searchEventsThunk = query => async dispatch => {
+  try {
+    const { data } = await axios.put(
+      `https://fair-hallway-265819.appspot.com/api/events/public/search`,
+      query
+    )
+    console.log(data)
+    if (data.error) {
+      dispatch(searchError("There was an error while searching."))
+    }
+
+    const results = data.event_public
+
+    results.length == 0
+      ? dispatch(searchError("There were no events found matching your query."))
+      : dispatch(searchEvents(data.event_public))
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+// REDUCER
+
 const initialState = {
   error: false,
   private: [],
   public: [],
+  searchResults: [],
   successfulEventCreation: false,
-  successfulEventEdit: false
+  successfulEventEdit: false,
+  successfulSearch: false
 }
 
-// REDUCER
 const eventsReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOG_IN_USER:
@@ -200,12 +240,20 @@ const eventsReducer = (state = initialState, action) => {
         error: action.payload,
         successfulEventEdit: false
       }
+    case SEARCH_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulSearch: false
+      }
     case CLEAR_ERROR:
       return {
         ...state,
         error: null,
         successfulEventCreation: false,
-        successfulEventEdit: false
+        successfulEventEdit: false,
+        successfulSearch: false,
+        searchResults: []
       }
     case EDIT_PUBLIC_EVENT:
       return {
@@ -222,6 +270,13 @@ const eventsReducer = (state = initialState, action) => {
         private: state.private.map(event =>
           event.id === action.payload.id ? action.payload : event
         )
+      }
+    case SEARCH_EVENTS:
+      return {
+        ...state,
+        error: null,
+        successfulSearch: true,
+        searchResults: action.payload
       }
     default:
       return state
