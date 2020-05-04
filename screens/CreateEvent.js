@@ -178,7 +178,7 @@ class CreateEvent extends React.Component {
           style={styles.input}
         />
         <TextInput
-          label="Event Location"
+          label="Event Destination"
           value={eventLocation}
           textContentType="location"
           autoCapitalize="none"
