@@ -1,11 +1,9 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { Button } from "react-native-paper"
 import { connect } from "react-redux"
 import { joinEventThunk } from "../store/utilities/events"
-import { formatDateTimeEnglishEST } from "../utilities"
-import { render } from "react-dom"
-
+import { binaryToStringSchedule, formatDateTimeEnglishEST } from "../utilities"
 class Event extends React.Component {
   componentDidUpdate() {
     const { successfulJoin, navigation } = this.props
@@ -52,8 +50,15 @@ class Event extends React.Component {
         <Text style={styles.text}>{eventName}</Text>
         <Text style={styles.text}>Location:</Text>
         <Text style={styles.text}>{locationName}</Text>
-        <Text style={styles.text}>Starts: </Text>
+        <Text style={styles.text}>Starts:</Text>
         <Text style={styles.text}>{formatDateTimeEnglishEST(startDate)}</Text>
+
+        {repeatWeekly == 1 && (
+          <>
+            <Text style={styles.text}>{"Occurs weekly on:"}</Text>
+            <Text style={styles.text}>{binaryToStringSchedule(weeklySchedule)}</Text>
+          </>
+        )}
         {!privateEvent && (
           <Text style={styles.text}>
             {attendees} {attendees > 1 ? " people are" : "person is"} attending this event
