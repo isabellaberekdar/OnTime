@@ -14,7 +14,6 @@ class Search extends React.Component {
   }
 
   searchEvents = query => {
-    console.log("Searching....")
     const searchQuery = {
       eventName: this.state.query
     }

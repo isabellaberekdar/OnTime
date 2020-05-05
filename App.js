@@ -69,10 +69,9 @@ function App() {
             <Stack.Screen name='CreateEvent' component={CreateEvent} />
             <Stack.Screen name='EditEvent' component={EditEvent} />
             <Stack.Screen name='Search' component={Search} />
+            <Stack.Screen name='Event' component={Event} />
             {/*
-            <Stack.Screen name="Event" component={Event} />
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-            <Stack.Screen name="Invitations" component={Invitations} />
             <Stack.Screen name="Notifications" component={Notifications} />
             */}
           </Stack.Navigator>

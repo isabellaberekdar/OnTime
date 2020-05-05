@@ -9,11 +9,13 @@ export const EDIT_PUBLIC_EVENT = "EDIT_PUBLIC_EVENT"
 export const EDIT_PRIVATE_EVENT = "EDIT_PRIVATE_EVENT"
 export const SEARCH_ERROR = "SEARCH_ERROR"
 export const SEARCH_EVENTS = "SEARCH_EVENTS"
+export const JOIN_EVENT = "JOIN_EVENT"
 
 /* Users */
 export const LOG_IN_USER = "LOG_IN_USER"
 export const REGISTER_USER = "REGISTER_USER"
 export const LOGIN_ERROR = "LOGIN_ERROR"
 export const REGISTRATION_ERROR = "REGISTRATION_ERROR"
+export const JOIN_ERROR = "JOIN_ERROR"
 
 export const CLEAR_ERROR = "CLEAR_ERROR"

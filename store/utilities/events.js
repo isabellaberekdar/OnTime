@@ -4,12 +4,14 @@ import {
   SET_EVENTS,
   EDIT_PUBLIC_EVENT,
   EDIT_PRIVATE_EVENT,
+  SEARCH_EVENTS,
+  JOIN_EVENT,
   EDIT_EVENT_ERROR,
   CREATE_PUBLIC_EVENT,
   CREATE_PRIVATE_EVENT,
   CREATE_EVENT_ERROR,
+  JOIN_ERROR,
   SEARCH_ERROR,
-  SEARCH_EVENTS,
   CLEAR_ERROR
 } from "../../actionTypes"
 
@@ -18,6 +20,13 @@ const getEvents = events => {
   return {
     type: GET_EVENTS,
     payload: { public: events.public, private: events.private }
+  }
+}
+
+const joinEvent = updatedEvent => {
+  return {
+    type: JOIN_EVENT,
+    payload: updatedEvent
   }
 }
 
@@ -77,6 +86,13 @@ const searchError = error => {
   }
 }
 
+const joinEventError = error => {
+  return {
+    payload: error,
+    type: JOIN_ERROR
+  }
+}
+
 export const clearError = () => {
   return {
     type: CLEAR_ERROR
@@ -121,7 +137,8 @@ export const createEventThunk = eventInfo => async dispatch => {
         time: data.time,
         weeklySchedule: data.weeklySchedule,
         code: data.code,
-        privateEvent: type == "private"
+        privateEvent: type == "private",
+        attendees: 1
       }
 
       type === "public"
@@ -187,16 +204,37 @@ export const searchEventsThunk = query => async dispatch => {
   }
 }
 
-// REDUCER
+export const joinEventThunk = info => async dispatch => {
+  try {
+    console.log(info)
+    const { data } = await axios.post(
+      "https://fair-hallway-265819.appspot.com/api/events/public/join",
+      info
+    )
+    if (data.event) {
+      const updatedEvent = {
+        ...data.event,
+        attendees: data.event.attendees + 1
+      }
+      dispatch(joinEvent(updatedEvent))
+    } else {
+      dispatch(joinEventError("There was an error joining the event."))
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 
+// REDUCER
 const initialState = {
-  error: false,
   private: [],
   public: [],
   searchResults: [],
+  error: false,
   successfulEventCreation: false,
   successfulEventEdit: false,
-  successfulSearch: false
+  successfulSearch: false,
+  successfulJoin: false
 }
 
 const eventsReducer = (state = initialState, action) => {
@@ -246,6 +284,12 @@ const eventsReducer = (state = initialState, action) => {
         error: action.payload,
         successfulSearch: false
       }
+    case JOIN_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulJoin: false
+      }
     case CLEAR_ERROR:
       return {
         ...state,
@@ -277,6 +321,14 @@ const eventsReducer = (state = initialState, action) => {
         error: null,
         successfulSearch: true,
         searchResults: action.payload
+      }
+    case JOIN_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulJoin: true,
+        // add event to local events list
+        public: [...state.public, action.payload]
       }
     default:
       return state
