@@ -206,7 +206,6 @@ export const searchEventsThunk = query => async dispatch => {
 
 export const joinEventThunk = info => async dispatch => {
   try {
-    console.log(info)
     const { data } = await axios.post(
       "https://fair-hallway-265819.appspot.com/api/events/public/join",
       info
