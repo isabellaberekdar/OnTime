@@ -42,7 +42,7 @@ function DrawerMenu() {
     <Drawer.Navigator initialRouteName={"Home"} style={styles.container}>
       <Drawer.Screen name='Home' component={Home} />
       <Drawer.Screen name='Public' component={CreateEvent} />
-      <Drawer.Screen name='Private' component={EditEvent} />
+      <Drawer.Screen name='Private' component={CreateEvent} />
       <Drawer.Screen name='Notification' component={Notifications} />
       <Drawer.Screen name='Change Password' component={ForgotPassword} />
     </Drawer.Navigator>
