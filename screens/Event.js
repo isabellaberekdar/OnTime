@@ -1,63 +1,72 @@
-import React from "react"
-import { View, FlatList, StyleSheet, Text } from "react-native"
+import React, { useEffect } from "react"
+import { View, StyleSheet, Text } from "react-native"
 import { Button } from "react-native-paper"
 import { connect } from "react-redux"
-import { joinEventThunk, clearError } from "../store/utilities/events"
-import { formatDateTimeEnglishEST, formatTimeEnglishEST } from "../utilities"
-import { NavigationContainer } from "@react-navigation/native"
+import { joinEventThunk } from "../store/utilities/events"
+import { formatDateTimeEnglishEST } from "../utilities"
+import { render } from "react-dom"
 
-const Event = props => {
-  const { userId, joinEvent, publicEvents, successfulJoin, navigation, error } = props
-  const {
-    code,
-    endDate,
-    eventName,
-    id,
-    locationName,
-    ownerId,
-    repeatWeekly,
-    startDate,
-    time,
-    weeklySchedule,
-    privateEvent,
-    attendees
-  } = props.route.params
+class Event extends React.Component {
+  componentDidUpdate() {
+    const { successfulJoin, navigation } = this.props
 
-  const join = async () => {
+    if (successfulJoin === true) {
+      navigation.navigate("Home")
+    }
+  }
+
+  join = async () => {
+    const { code } = this.props.route.params
+    const { userId, joinEvent } = this.props
+
     const info = {
       userId: userId,
       code: code
     }
 
-    await joinEvent(info)
-
-    if (successfulJoin) {
-      navigation.navigate("Home")
-    }
+    joinEvent(info)
   }
 
-  // get a set of ids of events the user is attending
-  const attendingIds = new Set(publicEvents.map(event => event.id))
+  render() {
+    const { userId, joinEvent, publicEvents, successfulJoin, navigation, error } = this.props
+    const {
+      code,
+      endDate,
+      eventName,
+      id,
+      locationName,
+      ownerId,
+      repeatWeekly,
+      startDate,
+      time,
+      weeklySchedule,
+      privateEvent,
+      attendees
+    } = this.props.route.params
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.text}>{eventName}</Text>
-      <Text style={styles.text}>Location:</Text>
-      <Text style={styles.text}>{locationName}</Text>
-      <Text style={styles.text}>Starts: </Text>
-      <Text style={styles.text}>{formatDateTimeEnglishEST(startDate)}</Text>
-      {!privateEvent && (
-        <Text style={styles.text}>
-          {attendees} {attendees > 1 ? " people are" : "person is"} attending this event
-        </Text>
-      )}
-      {/* show join button if the event is not made by the user and the event is not on the user's list of events that they are attending */}
-      {userId != ownerId && !attendingIds.has(id) && (
-        <Button onPress={() => join()}>Join Event</Button>
-      )}
-      {error}
-    </View>
-  )
+    // get a set of ids of events the user is attending
+    const attendingIds = new Set(publicEvents.map(event => event.id))
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.text}>{eventName}</Text>
+        <Text style={styles.text}>Location:</Text>
+        <Text style={styles.text}>{locationName}</Text>
+        <Text style={styles.text}>Starts: </Text>
+        <Text style={styles.text}>{formatDateTimeEnglishEST(startDate)}</Text>
+        {!privateEvent && (
+          <Text style={styles.text}>
+            {attendees} {attendees > 1 ? " people are" : "person is"} attending this event
+          </Text>
+        )}
+        {/* show join button if the event is not made by the user and the event is not on the user's list of events that they are attending */}
+        {userId != ownerId && !attendingIds.has(id) && (
+          <Button onPress={() => this.join()}>Join Event</Button>
+        )}
+        {error}
+      </View>
+    )
+  }
 }
 
 const styles = StyleSheet.create({
