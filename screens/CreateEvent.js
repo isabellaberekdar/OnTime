@@ -24,7 +24,7 @@ class CreateEvent extends React.Component {
     repeatWeekly: false,
     showStartDatePicker: false,
     showEndDatePicker: false,
-    jsonResponse: [],
+    distance: "",
     // start day picker on top with the current day highlighted (because current date is the default)
     // String format: Su Mo Tu We Th Fr Sa
     days:
@@ -52,8 +52,7 @@ class CreateEvent extends React.Component {
   // event name not empty
   // event location not empty
   // start date must be before or equal to end date
-  // valid location (must get coordinates)
-  create = () => {
+  create = async () => {
     if (true) {
       const { createEvent, userId } = this.props;
       const {
@@ -67,34 +66,24 @@ class CreateEvent extends React.Component {
         publicEvent
       } = this.state;
 
-      let key = "INSERT KEY HERE";
-
+      let key = "&mode=transit&key=AIzaSyAQaiPEAtfLlQ62GRh0BHCP_CcstLZB_7w";
+      let urlBeginning =
+        "https://maps.googleapis.com/maps/api/directions/json?";
       let url =
-        "urlBeginning" +
-        eventStartLocation +
+        urlBeginning +
+        "origin=" +
+        eventStart +
         "&destination=" +
         eventLocation +
         key;
 
-      /*
-      axios
-        .get(url)
-        .then(response => {
-          if () {
-            this.setState({ jsonResponse: response.data.data });
-          } else {
-            this.setState({ jsonResponse: [response.data.data] });
-          }
-        })
-        .catch(error => {
-          this.setState({ jsonResponse: [] });
-        });
-        */
+      const { data } = await axios.get(url);
+      this.state.distance = data.routes[0].legs[0].duration.text;
+      console.log(this.state.distance);
 
       const start = formatDateEST(startDate);
       const time = formatTimeEST(startDate);
       const end = !repeatWeekly ? start : formatDateEST(endDate);
-
       const eventInfo = {
         ownerId: userId,
         eventName: eventName,
