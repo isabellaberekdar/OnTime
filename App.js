@@ -19,7 +19,6 @@ import {
   EditEvent,
   Event,
   ForgotPassword,
-  Invitations,
   Notifications,
   Search,
   Loading
@@ -42,7 +41,6 @@ function DrawerMenu() {
   return (
     <Drawer.Navigator initialRouteName={"Home"} style={styles.container}>
       <Drawer.Screen name='Home' component={Home} />
-      <Drawer.Screen name='Invites' component={Invitations} />
       <Drawer.Screen name='Public' component={CreateEvent} />
       <Drawer.Screen name='Private' component={EditEvent} />
       <Drawer.Screen name='Notification' component={Notifications} />
@@ -71,10 +69,9 @@ function App() {
             <Stack.Screen name='CreateEvent' component={CreateEvent} />
             <Stack.Screen name='EditEvent' component={EditEvent} />
             <Stack.Screen name='Search' component={Search} />
+            <Stack.Screen name='Event' component={Event} />
             {/*
-            <Stack.Screen name="Event" component={Event} />
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-            <Stack.Screen name="Invitations" component={Invitations} />
             <Stack.Screen name="Notifications" component={Notifications} />
             */}
           </Stack.Navigator>

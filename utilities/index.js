@@ -65,12 +65,10 @@ function formatTimeEST(date) {
 }
 
 // Convert from a date and time in EST to a UTC Date object
-// 2020-04-28 and 06:28:00 to: 
+// 2020-04-28 and 06:28:00 to:
 function getUTCDate(date, time) {
   return moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A").toDate()
 }
-
-
 
 export {
   binaryToStringSchedule,
