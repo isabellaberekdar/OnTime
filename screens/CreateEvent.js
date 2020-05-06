@@ -79,8 +79,20 @@ class CreateEvent extends React.Component {
         key;
 
       const { data } = await axios.get(url);
+      //console.log(data);
       this.state.distance = data.routes[0].legs[0].duration.text;
       console.log(this.state.distance);
+      const startingLat = data.routes[0].legs[0].start_location.lat;
+      const startingLong = data.routes[0].legs[0].start_location.lng;
+      const endingLat = data.routes[0].legs[0].end_location.lat;
+      const endingLong = data.routes[0].legs[0].end_location.lng;
+
+      console.log(
+        "STARTING LAT = " + startingLat + "     STARTING LONG = " + startingLong
+      );
+      console.log(
+        "ENDING LAT " + endingLat + "        ENDING LONG " + endingLong
+      );
 
       const start = formatDateEST(startDate);
       const time = formatTimeEST(startDate);
