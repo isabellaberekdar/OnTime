@@ -12,6 +12,7 @@ import {
   formatTimeEST
 } from "../utilities";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
+import { API_KEY } from "react-native-dotenv";
 
 class CreateEvent extends React.Component {
   state = {
@@ -66,7 +67,7 @@ class CreateEvent extends React.Component {
         publicEvent
       } = this.state;
 
-      let key = "&mode=transit&key=AIzaSyAQaiPEAtfLlQ62GRh0BHCP_CcstLZB_7w";
+      let key = "&mode=transit&key=" + API_KEY;
       let urlBeginning =
         "https://maps.googleapis.com/maps/api/directions/json?";
       let url =
