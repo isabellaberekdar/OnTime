@@ -7,7 +7,6 @@ import { binaryToStringSchedule, formatDateTimeEnglishEST } from "../utilities"
 class Event extends React.Component {
   componentDidUpdate() {
     const { successfulJoin, navigation } = this.props
-
     if (successfulJoin === true) {
       navigation.navigate("Home")
     }
@@ -26,7 +25,7 @@ class Event extends React.Component {
   }
 
   render() {
-    const { userId, joinEvent, publicEvents, successfulJoin, navigation, error } = this.props
+    const { userId, publicEvents, navigation, error } = this.props
     const {
       code,
       endDate,
@@ -52,7 +51,6 @@ class Event extends React.Component {
         <Text style={styles.text}>{locationName}</Text>
         <Text style={styles.text}>Starts:</Text>
         <Text style={styles.text}>{formatDateTimeEnglishEST(startDate)}</Text>
-
         {repeatWeekly == 1 && (
           <>
             <Text style={styles.text}>{"Occurs weekly on:"}</Text>

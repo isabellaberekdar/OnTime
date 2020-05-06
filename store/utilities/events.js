@@ -117,7 +117,7 @@ export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.private ? "private" : "public"
     const { data } = await axios.post(
-      `https://fair-hallway-265819.appspot.com/api/events/${type}/create`,
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/create`,
       eventInfo
     )
 
@@ -156,7 +156,7 @@ export const editEventThunk = eventInfo => async dispatch => {
     delete eventInfo["public"]
 
     const { data } = await axios.put(
-      `https://fair-hallway-265819.appspot.com/api/events/${type}/edit`,
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/edit`,
       eventInfo
     )
 
@@ -186,7 +186,7 @@ export const editEventThunk = eventInfo => async dispatch => {
 export const searchEventsThunk = query => async dispatch => {
   try {
     const { data } = await axios.put(
-      `https://fair-hallway-265819.appspot.com/api/events/public/search`,
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/search`,
       query
     )
     console.log(data)
@@ -207,7 +207,7 @@ export const searchEventsThunk = query => async dispatch => {
 export const joinEventThunk = info => async dispatch => {
   try {
     const { data } = await axios.post(
-      "https://fair-hallway-265819.appspot.com/api/events/public/join",
+      "https://avian-infusion-276423.ue.r.appspot.com/api/events/public/join",
       info
     )
     if (data.event) {
