@@ -67,19 +67,23 @@ class CreateEvent extends React.Component {
         publicEvent
       } = this.state;
 
-      let key = "&mode=transit&key=" + API_KEY;
-      let urlBeginning =
+      const key = "&mode=transit&key=" + API_KEY;
+      const eventStartMod = eventStart.split(" ").join("+");
+      const eventLocationMod = eventLocation.split(" ").join("+");
+
+      const urlBeginning =
         "https://maps.googleapis.com/maps/api/directions/json?";
-      let url =
+      const url =
         urlBeginning +
         "origin=" +
-        eventStart +
+        eventStartMod +
         "&destination=" +
-        eventLocation +
+        eventLocationMod +
         key;
 
+      console.log(url);
       const { data } = await axios.get(url);
-      //console.log(data);
+      console.log(data);
       this.state.distance = data.routes[0].legs[0].duration.text;
       console.log(this.state.distance);
       const startingLat = data.routes[0].legs[0].start_location.lat;
