@@ -5,7 +5,7 @@ import { connect } from "react-redux";
 import { Event } from "../components";
 import { logout } from "../store";
 
-const Home = props => {
+const PublicFilter = props => {
   const { publicEvents, privateEvents, firstName, id, navigation } = props;
 
   const logout = () => {
@@ -13,16 +13,11 @@ const Home = props => {
     props.logout();
   };
 
-  let events = [...publicEvents, ...privateEvents];
+  let events = [...publicEvents];
 
   return (
     <View style={styles.homeContainer}>
-      <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
-
-      <Text style={styles.text}>Your Events:</Text>
-      <Button onPress={() => navigation.navigate("CreateEvent")}>
-        + Add Event
-      </Button>
+      <Text style={styles.header}>Your Public Events:</Text>
       {events.length > 0 ? (
         <FlatList
           data={events}
@@ -35,9 +30,6 @@ const Home = props => {
         <Text>You have no upcoming events.</Text>
       )}
 
-      <Button onPress={() => navigation.navigate("Search")}>
-        Search Events
-      </Button>
       <Button onPress={() => logout()}>logout</Button>
     </View>
   );
@@ -60,6 +52,13 @@ const styles = StyleSheet.create({
   },
   welcomeText: {
     fontSize: 25
+  },
+  header: {
+    fontSize: 25,
+    textAlign: "center",
+    paddingTop: "10%",
+    paddingBottom: "10%",
+    color: "#7B33FF"
   }
 });
 
@@ -82,4 +81,4 @@ const mapDispatch = dispatch => {
   };
 };
 
-export default connect(mapState, mapDispatch)(Home);
+export default connect(mapState, mapDispatch)(PublicFilter);
