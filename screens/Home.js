@@ -14,11 +14,9 @@ const Home = props => {
   }
 
   let events = [...publicEvents, ...privateEvents]
-
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
-
       <Text style={styles.text}>Your Events:</Text>
       <Button onPress={() => navigation.navigate("CreateEvent")}>+ Add Event</Button>
       {events.length > 0 ? (
@@ -61,7 +59,6 @@ const styles = StyleSheet.create({
 
 const mapState = state => {
   const { events, userInfo } = state
-
   return {
     publicEvents: events.public ?? [],
     privateEvents: events.private ?? [],

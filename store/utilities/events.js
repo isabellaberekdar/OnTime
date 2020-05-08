@@ -2,14 +2,19 @@ import axios from "axios"
 import {
   LOG_IN_USER,
   SET_EVENTS,
+  CREATE_PUBLIC_EVENT,
+  CREATE_PRIVATE_EVENT,
+  JOIN_EVENT,
   EDIT_PUBLIC_EVENT,
   EDIT_PRIVATE_EVENT,
   SEARCH_EVENTS,
-  JOIN_EVENT,
-  EDIT_EVENT_ERROR,
-  CREATE_PUBLIC_EVENT,
-  CREATE_PRIVATE_EVENT,
+  DELETE_PRIVATE_EVENT,
+  DELETE_PUBLIC_EVENT,
+  DELETE_EVENT_ERROR,
+  REMOVE_EVENT,
+  REMOVE_EVENT_ERROR,
   CREATE_EVENT_ERROR,
+  EDIT_EVENT_ERROR,
   JOIN_ERROR,
   SEARCH_ERROR,
   CLEAR_ERROR
@@ -48,6 +53,27 @@ const editPublicEvent = event => {
   return {
     type: EDIT_PUBLIC_EVENT,
     payload: event
+  }
+}
+
+const deletePrivateEvent = eventId => {
+  return {
+    type: DELETE_PRIVATE_EVENT,
+    payload: eventId
+  }
+}
+
+const deletePublicEvent = eventId => {
+  return {
+    type: DELETE_PUBLIC_EVENT,
+    payload: eventId
+  }
+}
+
+const deleteEventError = () => {
+  return {
+    type: DELETE_EVENT_ERROR,
+    payload: "There was an error deleting the event."
   }
 }
 
@@ -120,7 +146,7 @@ export const createEventThunk = eventInfo => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/create`,
       eventInfo
     )
-
+    console.log(data)
     if (data.eventName == undefined) {
       dispatch(createEventError())
     } else {
@@ -138,7 +164,9 @@ export const createEventThunk = eventInfo => async dispatch => {
         weeklySchedule: data.weeklySchedule,
         code: data.code,
         privateEvent: type == "private",
-        attendees: 1
+        attendees: 1,
+        startLat: 1, // temp
+        startLon: 1 // temp
       }
 
       type === "public"
@@ -224,6 +252,33 @@ export const joinEventThunk = info => async dispatch => {
   }
 }
 
+/*     
+    const info = {
+      code: code,
+      eventId: id,
+      privateEvent: privateEvent
+    } 
+*/
+export const deleteEventThunk = info => async dispatch => {
+  try {
+    const type = info.privateEvent ? 'private' : 'public'
+    const { data } = await axios.put(
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/delete`,
+      info
+    )
+    console.log(info, data)
+    info.privateEvent ? dispatch(deletePrivateEvent(info.eventId)) : dispatch(deletePublicEvent(info.eventId))
+
+    /*     
+      data.delete_event.affectedRows > 0
+      ? dispatch(deleteEvent(info.eventId))
+      : dispatch(deleteEventError())
+    */
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 // REDUCER
 const initialState = {
   private: [],
@@ -231,6 +286,7 @@ const initialState = {
   searchResults: [],
   error: false,
   successfulEventCreation: false,
+  successfulEventDeletion: false,
   successfulEventEdit: false,
   successfulSearch: false,
   successfulJoin: false
@@ -296,6 +352,7 @@ const eventsReducer = (state = initialState, action) => {
         successfulEventCreation: false,
         successfulEventEdit: false,
         successfulSearch: false,
+        successfulEventDeletion: false,
         searchResults: []
       }
     case EDIT_PUBLIC_EVENT:
@@ -328,6 +385,28 @@ const eventsReducer = (state = initialState, action) => {
         successfulJoin: true,
         // add event to local events list
         public: [...state.public, action.payload]
+      }
+    case DELETE_EVENT_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulEventDeletion: false
+      }
+    case DELETE_PRIVATE_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulEventDeletion: true,
+        // remove event from local events list
+        private: state.private.filter(event => event.id != action.payload)
+      }
+    case DELETE_PUBLIC_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulEventDeletion: true,
+        // remove event from local events list
+        public: state.public.filter(event => event.id != action.payload)
       }
     default:
       return state
