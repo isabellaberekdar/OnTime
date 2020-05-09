@@ -13,12 +13,12 @@ const Home = props => {
     props.logout();
   };
 
-  let events = [...publicEvents, ...privateEvents];
+  let events = [...publicEvents, ...privateEvents]
+  events = events.map(event => (event.user ? event.event : event))
 
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>
-
       <Text style={styles.text}>Your Events:</Text>
       <Button onPress={() => navigation.navigate("CreateEvent")}>
         + Add Event

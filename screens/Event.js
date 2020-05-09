@@ -2,12 +2,12 @@ import React from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { Button } from "react-native-paper"
 import { connect } from "react-redux"
-import { joinEventThunk } from "../store/utilities/events"
+import { joinEventThunk, deleteEventThunk } from "../store/utilities/events"
 import { binaryToStringSchedule, formatDateTimeEnglishEST } from "../utilities"
 class Event extends React.Component {
   componentDidUpdate() {
-    const { successfulJoin, navigation } = this.props
-    if (successfulJoin === true) {
+    const { successfulJoin, successfulEventDeletion, navigation } = this.props
+    if (successfulJoin === true || successfulEventDeletion === true) {
       navigation.navigate("Home")
     }
   }
@@ -22,6 +22,18 @@ class Event extends React.Component {
     }
 
     joinEvent(info)
+  }
+
+  delete = async () => {
+    const { code, id, privateEvent } = this.props.route.params
+    const { userId, deleteEvent, navigation } = this.props
+    const info = {
+      code: code,
+      eventId: id,
+      privateEvent: privateEvent
+    }
+
+    deleteEvent(info)
   }
 
   render() {
@@ -66,7 +78,9 @@ class Event extends React.Component {
         {userId != ownerId && !attendingIds.has(id) && (
           <Button onPress={() => this.join()}>Join Event</Button>
         )}
-        {error}
+        {/* show delete button if the user is the event creator */}
+        {userId == ownerId && <Button onPress={() => this.delete()}>Delete Event</Button>}
+        <Text>{error}</Text>
       </View>
     )
   }
@@ -96,13 +110,15 @@ const mapState = state => {
     userId: userInfo.id,
     error: events.error,
     successfulJoin: events.successfulJoin,
+    successfulEventDeletion: events.successfulEventDeletion,
     publicEvents: events.public
   }
 }
 
 const mapDispatch = dispatch => {
   return {
-    joinEvent: info => dispatch(joinEventThunk(info))
+    joinEvent: info => dispatch(joinEventThunk(info)),
+    deleteEvent: info => dispatch(deleteEventThunk(info))
   }
 }
 
