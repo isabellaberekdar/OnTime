@@ -62,6 +62,8 @@ class EditEvent extends React.Component {
   edit = () => {
     if (true) {
       const { editEvent, userId, editStartLocation } = this.props
+      const { code, id, privateEvent } = this.props.route.params
+
       const {
         eventLocation,
         days,
@@ -79,21 +81,21 @@ class EditEvent extends React.Component {
       const end = !repeatWeekly ? start : formatDateEST(endDate)
 
       /* edit start location (only if something is entered into the field) */
-      if (eventStart != "") {
-        const { code, id } = this.props.route.params
-        let startLat, startLng
-        /* convert start location into coordinates */
-        startLat = 1.5, //temp
-        startLng = 1.5  //temp
+      let startLat, startLng
+      const newStart = eventStart != ""
+      if (newStart) {
+        /* convert start location into coordinates here */
+        startLat = 1.3 //temp
+        startLng = 1.3 //temp
+      }
 
-    
-        /* convert eventStart into lat and lng */
-    
+      /* if event is public a separate call is required to set a new location */
+      if (!privateEvent && newStart) {
         const info = {
           userId: userId,
           eventId: id,
           startLat: startLat, //temp
-          startLng: startLng  //temp
+          startLng: startLng //temp
         }
         editStartLocation(info)
       }
@@ -112,6 +114,8 @@ class EditEvent extends React.Component {
           locationName: eventLocation,
           lat: 1,
           lng: 1,
+          ...(privateEvent && newStart && {startLat: startLat}),
+          ...(privateEvent && newStart && {startLng: startLng})
         }
       }
 
