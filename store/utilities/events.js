@@ -179,8 +179,8 @@ export const createEventThunk = eventInfo => async dispatch => {
         code: data.code,
         privateEvent: type == "private",
         attendees: 1,
-        startLat: data.startLat, // temp
-        startLng: data.startLng // temp
+        startLat: eventInfo.startLat,
+        startLng: eventInfo.startLng
       }
 
       type === "public"
@@ -201,8 +201,6 @@ export const editEventThunk = eventInfo => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/edit`,
       eventInfo
     )
-
-    //TODO: handle notifications
 
     if (!data.eventName) {
       dispatch(editEventError())

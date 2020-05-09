@@ -54,10 +54,10 @@ class Event extends React.Component {
     /* convert eventStart into lat and lng */
 
     const info = {
-      startLat: 1, //temp
-      startLng: 1, //temp
       userId: userId,
-      eventId: id
+      eventId: id,
+      startLat: 1, //temp
+      startLng: 1  //temp
     }
 
     editStartLocation(info)
