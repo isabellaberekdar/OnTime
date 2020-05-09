@@ -1,19 +1,13 @@
-import React from "react";
-import { View, FlatList, StyleSheet, Text } from "react-native";
-import { Button } from "react-native-paper";
-import { connect } from "react-redux";
-import { Event } from "../components";
-import { logout } from "../store";
+import React from "react"
+import { View, FlatList, StyleSheet, Text } from "react-native"
+import { Button } from "react-native-paper"
+import { connect } from "react-redux"
+import { Event } from "../components"
 
 const PrivateFilter = props => {
-  const { publicEvents, privateEvents, firstName, id, navigation } = props;
+  const { publicEvents, privateEvents, firstName, id, navigation } = props
 
-  const logout = () => {
-    navigation.navigate("Start");
-    props.logout();
-  };
-
-  let events = [...privateEvents];
+  let events = [...privateEvents]
 
   return (
     <View style={styles.homeContainer}>
@@ -29,11 +23,9 @@ const PrivateFilter = props => {
       ) : (
         <Text>You have no upcoming events.</Text>
       )}
-
-      <Button onPress={() => logout()}>logout</Button>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   homeContainer: {
@@ -60,10 +52,10 @@ const styles = StyleSheet.create({
     paddingBottom: "10%",
     color: "#7B33FF"
   }
-});
+})
 
 const mapState = state => {
-  const { events, userInfo } = state;
+  const { events, userInfo } = state
 
   return {
     publicEvents: events.public ?? [],
@@ -71,14 +63,13 @@ const mapState = state => {
     firstName: userInfo.firstName ?? "unknown",
     id: userInfo.id,
     error: userInfo.error
-  };
-};
+  }
+}
 
 const mapDispatch = dispatch => {
   return {
-    logout: () => dispatch(logout()),
     clearError: () => dispatch(clearError())
-  };
-};
+  }
+}
 
-export default connect(mapState, mapDispatch)(PrivateFilter);
+export default connect(mapState, mapDispatch)(PrivateFilter)
