@@ -1,10 +1,23 @@
 import React from "react"
 import { View, StyleSheet, Text } from "react-native"
-import { Button } from "react-native-paper"
+import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
-import { joinEventThunk, deleteEventThunk } from "../store/utilities/events"
+import {
+  joinEventThunk,
+  deleteEventThunk,
+  editStartLocationThunk,
+  clearError
+} from "../store/utilities/events"
 import { binaryToStringSchedule, formatDateTimeEnglishEST } from "../utilities"
 class Event extends React.Component {
+  state = {
+    eventStart: "",
+    settingLocation: false,
+    error: null
+  }
+
+  /* TODO: add error handling so that you can't submit with no event */
+
   componentDidUpdate() {
     const { successfulJoin, successfulEventDeletion, navigation } = this.props
     if (successfulJoin === true || successfulEventDeletion === true) {
@@ -12,21 +25,48 @@ class Event extends React.Component {
     }
   }
 
+  componentDidMount() {
+    this.props.clearError()
+  }
+
   join = async () => {
     const { code } = this.props.route.params
     const { userId, joinEvent } = this.props
+    const { eventStart } = this.state
+
+    /* convert eventStart into lat and lng */
 
     const info = {
       userId: userId,
-      code: code
+      code: code,
+      startLat: 1, // temp
+      startLng: 1 // temp
     }
 
     joinEvent(info)
   }
 
+  edit = async () => {
+    const { code, id } = this.props.route.params
+    const { userId, editStartLocation } = this.props
+    const { eventStart } = this.state
+
+    /* convert eventStart into lat and lng */
+
+    const info = {
+      startLat: 1, //temp
+      startLng: 1, //temp
+      userId: userId,
+      eventId: id
+    }
+
+    editStartLocation(info)
+  }
+
   delete = async () => {
     const { code, id, privateEvent } = this.props.route.params
     const { userId, deleteEvent, navigation } = this.props
+
     const info = {
       code: code,
       eventId: id,
@@ -37,7 +77,7 @@ class Event extends React.Component {
   }
 
   render() {
-    const { userId, publicEvents, navigation, error } = this.props
+    const { userId, publicEvents, navigation, successfulStartLocationEdit, error } = this.props
     const {
       code,
       endDate,
@@ -53,6 +93,7 @@ class Event extends React.Component {
       attendees
     } = this.props.route.params
 
+    const { eventStart, settingLocation } = this.state
     // get a set of ids of events the user is attending
     const attendingIds = new Set(publicEvents.map(event => event.id))
 
@@ -75,9 +116,46 @@ class Event extends React.Component {
           </Text>
         )}
         {/* show join button if the event is not made by the user and the event is not on the user's list of events that they are attending */}
-        {userId != ownerId && !attendingIds.has(id) && (
-          <Button onPress={() => this.join()}>Join Event</Button>
+        {userId != ownerId && !attendingIds.has(id) && !this.state.settingLocation && (
+          <Button onPress={() => this.setState({ settingLocation: true })}>Join Event</Button>
         )}
+        {settingLocation && !attendingIds.has(id) && (
+          <>
+            <TextInput
+              label='Event Starting Location'
+              value={eventStart}
+              textContentType='location'
+              autoCapitalize='none'
+              onChangeText={eventStart => this.setState({ eventStart })}
+              mode='outlined'
+              style={styles.input}
+            />
+            <Button onPress={() => this.join()}>Join Event</Button>
+          </>
+        )}
+
+        {/* user can edit start location for an event they have already joined */}
+        {userId != ownerId && attendingIds.has(id) && !this.state.settingLocation && (
+          <Button onPress={() => this.setState({ settingLocation: true })}>
+            Change Start Location
+          </Button>
+        )}
+        {settingLocation && attendingIds.has(id) && !successfulStartLocationEdit && (
+          <>
+            <TextInput
+              label='Event Starting Location'
+              value={eventStart}
+              textContentType='location'
+              autoCapitalize='none'
+              onChangeText={eventStart => this.setState({ eventStart })}
+              mode='outlined'
+              style={styles.input}
+            />
+            <Button onPress={() => this.edit()}>Update Start Location</Button>
+          </>
+        )}
+        {successfulStartLocationEdit && <Text>Your start location has been updated.</Text>}
+
         {/* show delete button if the user is the event creator */}
         {userId == ownerId && <Button onPress={() => this.delete()}>Delete Event</Button>}
         <Text>{error}</Text>
@@ -99,6 +177,9 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 25
+  },
+  input: {
+    width: "75%"
   }
 })
 
@@ -111,6 +192,7 @@ const mapState = state => {
     error: events.error,
     successfulJoin: events.successfulJoin,
     successfulEventDeletion: events.successfulEventDeletion,
+    successfulStartLocationEdit: events.successfulStartLocationEdit,
     publicEvents: events.public
   }
 }
@@ -118,7 +200,9 @@ const mapState = state => {
 const mapDispatch = dispatch => {
   return {
     joinEvent: info => dispatch(joinEventThunk(info)),
-    deleteEvent: info => dispatch(deleteEventThunk(info))
+    deleteEvent: info => dispatch(deleteEventThunk(info)),
+    editStartLocation: info => dispatch(editStartLocationThunk(info)),
+    clearError: () => dispatch(clearError())
   }
 }
 

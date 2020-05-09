@@ -17,7 +17,9 @@ import {
   EDIT_EVENT_ERROR,
   JOIN_ERROR,
   SEARCH_ERROR,
-  CLEAR_ERROR
+  CLEAR_ERROR,
+  EDIT_START_LOCATION,
+  EDIT_START_LOCATION_ERROR
 } from "../../actionTypes"
 
 // ACTION CREATORS
@@ -116,6 +118,19 @@ const joinEventError = error => {
   return {
     payload: error,
     type: JOIN_ERROR
+  }
+}
+
+const editStartLocationError = error => {
+  return {
+    payload: "There was an error updating your start location.",
+    type: EDIT_START_LOCATION_ERROR
+  }
+}
+
+const editStartLocation = () => {
+  return {
+    type: EDIT_START_LOCATION
   }
 }
 
@@ -231,12 +246,21 @@ export const searchEventsThunk = query => async dispatch => {
   }
 }
 
+/* info:
+  userId,
+  startLat,
+  startLng,
+  code
+*/
+
 export const joinEventThunk = info => async dispatch => {
   try {
     const { data } = await axios.post(
       "https://avian-infusion-276423.ue.r.appspot.com/api/events/public/join",
       info
     )
+
+    console.log("JOIN RESPONSE: ", data)
     if (data.event) {
       const updatedEvent = {
         ...data.event,
@@ -267,6 +291,18 @@ export const deleteEventThunk = info => async dispatch => {
   }
 }
 
+export const editStartLocationThunk = info => async dispatch => {
+  try {
+    const { data } = await axios.put(
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/edit/start`,
+      info
+    )
+    data.eventId ? dispatch(editStartLocation()) : dispatch(editStartLocationError())
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 // REDUCER
 const initialState = {
   private: [],
@@ -277,7 +313,8 @@ const initialState = {
   successfulEventDeletion: false,
   successfulEventEdit: false,
   successfulSearch: false,
-  successfulJoin: false
+  successfulJoin: false,
+  successfulStartLocationEdit: false
 }
 
 const eventsReducer = (state = initialState, action) => {
@@ -289,7 +326,12 @@ const eventsReducer = (state = initialState, action) => {
         return { ...event, privateEvent: true }
       })
       const publicEvents = action.payload.events.public.map(event => {
-        return { ...event.event, privateEvent: false }
+        return {
+          ...event.event,
+          startLat: event.user.startLat,
+          startLng: event.user.startLng,
+          privateEvent: false
+        }
       })
       return {
         ...state,
@@ -341,6 +383,8 @@ const eventsReducer = (state = initialState, action) => {
         successfulEventEdit: false,
         successfulSearch: false,
         successfulEventDeletion: false,
+        successfulJoin: false,
+        successfulStartLocationEdit: false,
         searchResults: []
       }
     case EDIT_PUBLIC_EVENT:
@@ -395,6 +439,20 @@ const eventsReducer = (state = initialState, action) => {
         successfulEventDeletion: true,
         // remove event from local events list
         public: state.public.filter(event => event.id != action.payload)
+      }
+
+    case EDIT_START_LOCATION:
+      return {
+        ...state,
+        error: null,
+        successfulStartLocationEdit: true
+        // update start lat and start lng locally?
+      }
+    case EDIT_START_LOCATION_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulStartLocationEdit: false
       }
     default:
       return state
