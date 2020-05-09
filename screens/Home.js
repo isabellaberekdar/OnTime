@@ -14,6 +14,8 @@ const Home = props => {
   }
 
   let events = [...publicEvents, ...privateEvents]
+  events = events.map(event => (event.user ? event.event : event))
+
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>

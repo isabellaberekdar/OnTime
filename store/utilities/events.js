@@ -146,7 +146,6 @@ export const createEventThunk = eventInfo => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/create`,
       eventInfo
     )
-    console.log(data)
     if (data.eventName == undefined) {
       dispatch(createEventError())
     } else {
@@ -165,8 +164,8 @@ export const createEventThunk = eventInfo => async dispatch => {
         code: data.code,
         privateEvent: type == "private",
         attendees: 1,
-        startLat: 1, // temp
-        startLon: 1 // temp
+        startLat: data.startLat, // temp
+        startLng: data.startLng // temp
       }
 
       type === "public"
@@ -217,7 +216,7 @@ export const searchEventsThunk = query => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/search`,
       query
     )
-    console.log(data)
+
     if (data.error) {
       dispatch(searchError("There was an error while searching."))
     }
@@ -252,28 +251,16 @@ export const joinEventThunk = info => async dispatch => {
   }
 }
 
-/*     
-    const info = {
-      code: code,
-      eventId: id,
-      privateEvent: privateEvent
-    } 
-*/
 export const deleteEventThunk = info => async dispatch => {
   try {
-    const type = info.privateEvent ? 'private' : 'public'
+    const type = info.privateEvent ? "private" : "public"
     const { data } = await axios.put(
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/delete`,
       info
     )
-    console.log(info, data)
-    info.privateEvent ? dispatch(deletePrivateEvent(info.eventId)) : dispatch(deletePublicEvent(info.eventId))
-
-    /*     
-      data.delete_event.affectedRows > 0
-      ? dispatch(deleteEvent(info.eventId))
-      : dispatch(deleteEventError())
-    */
+    info.privateEvent
+      ? dispatch(deletePrivateEvent(info.eventId))
+      : dispatch(deletePublicEvent(info.eventId))
   } catch (error) {
     console.log(error)
   }

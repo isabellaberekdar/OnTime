@@ -4,7 +4,6 @@ import { Button } from "react-native-paper"
 import { connect } from "react-redux"
 import { joinEventThunk, deleteEventThunk } from "../store/utilities/events"
 import { binaryToStringSchedule, formatDateTimeEnglishEST } from "../utilities"
-import Loading from "."
 class Event extends React.Component {
   componentDidUpdate() {
     const { successfulJoin, successfulEventDeletion, navigation } = this.props
@@ -28,7 +27,7 @@ class Event extends React.Component {
   delete = async () => {
     const { code, id, privateEvent } = this.props.route.params
     const { userId, deleteEvent, navigation } = this.props
-
+    console.log('CODE: ', code, this.props.route.params)
     const info = {
       code: code,
       eventId: id,
