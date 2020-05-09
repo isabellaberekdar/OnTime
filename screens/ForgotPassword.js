@@ -2,37 +2,109 @@ import React, { Component } from 'react'
 import { Text, View, StyleSheet } from 'react-native'
 import { TextInput, Button } from 'react-native-paper';
 
+import axios from "axios"
+
 class ForgotPassword extends React.Component
 {
     state =
     {
-        email: ""
+        email: "",
+        password: "",
+        new_password: "",
+        //confirm_password: "",
     }
 
-    validateEmail = ( email ) =>
+    on_password_change = password =>
     {
-        return true
+        this.setState({ password })
     }
 
+    on_new_pass_change = new_password =>
+    {
+        this.setState({ new_password })
+    }
 
+    // on_confirm_pass_change = confirm_password =>
+    // {
+    //     this.setState({ confirm_password })
+    // }
+
+    post_password_to_backend = async () =>
+    {
+        const { email, password, new_password } = this.state
+
+        const back_end_url = "https://avian-infusion-276423.ue.r.appspot.com/api/account/edit/password"
+
+        // const { email, old_password, password } = this.state
+
+        // if ( password !== confirm_password )
+        // {
+        //     // alert("Password does not match!")
+        //     return
+        // }
+        // else
+        // {
+        //     // alert ("Password matches!")
+        //     await axios.put(back_end_url, this.state)
+
+        //     await this.props.navigation.navigate("Home")
+        // }
+
+        if ( new_password == "" )
+        {
+            alert ("New Password ")
+            return
+        }
+        else
+        {
+            // alert ("New Password Read")
+            await axios.put(back_end_url, this.state)
+            await this.props.navigation.navigate("Home")
+        }
+    }
 
     render()
     {
-        const { email } = this.state
-
         return (
             <View style={styles.container}>
-                <TextInput
-                    label="Email"
-                    value={ email }
-                    textContentType="emailAddress"
-                    autoCapitalize="none"
-                    onChangeText={ email => this.setState({ email })}
-                    style={ styles.input_email }
-                    underlineColorAndroid="transparent"
-                />
+                 <TextInput
+                    label='Enter Email'
+                    textContentType='email'
+                    autoCapitalize='none'
+                    onChangeText={ email => this.setState({ email }) }
+                    style={styles.input_password}
+                    />
 
-                <Button style={ styles.submit_email }>Submit</Button>
+                <TextInput
+                    label='Old Password'
+                    textContentType='password'
+                    autoCapitalize='none'
+                    onChangeText={ this.on_password_change }
+                    secureTextEntry={ true }
+                    style={styles.input_password}
+                    />
+
+                <TextInput
+                    label='New Password'
+                    textContentType='password'
+                    autoCapitalize='none'
+                    onChangeText={ this.on_new_pass_change }
+                    secureTextEntry={ true }
+                    style={styles.input_password}
+                    />
+
+                {/* <TextInput
+                    label='Confirm Password'
+                    textContentType='password'
+                    autoCapitalize='none'
+                    onChangeText={ this.on_confirm_pass_change }
+                    secureTextEntry={ true }
+                    style={styles.input_password}
+                /> */}
+
+                <Button style={ styles.submit_fields }
+                    onPress={ this.post_password_to_backend }
+                >Submit</Button>
             </View>
         )
     }
@@ -43,10 +115,10 @@ const styles = StyleSheet.create({
     {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
 
-    input_email:
+    input_password:
     {
         width: "75%",
         borderRadius: 15,
@@ -54,7 +126,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 15,
     },
 
-    submit_email:
+    submit_fields:
     {
         alignItems: "center",
         justifyContent: "center",

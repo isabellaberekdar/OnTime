@@ -67,7 +67,7 @@ class CreateEvent extends React.Component {
         publicEvent
       } = this.state;
 
-      /* let key = "&mode=transit&key=" + API_KEY;
+      let key = "&mode=transit&key=" + API_KEY;
       let urlBeginning =
         "https://maps.googleapis.com/maps/api/directions/json?";
       const url =
@@ -93,7 +93,7 @@ class CreateEvent extends React.Component {
       );
       console.log(
         "ENDING LAT " + endingLat + "        ENDING LONG " + endingLong
-      ); */
+      );
 
       const start = formatDateEST(startDate);
       const time = formatTimeEST(startDate);
