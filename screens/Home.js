@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
 
 const mapState = state => {
   const { events, userInfo } = state
+
   return {
     publicEvents: events.public ?? [],
     privateEvents: events.private ?? [],

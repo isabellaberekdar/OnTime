@@ -258,6 +258,7 @@ export const deleteEventThunk = info => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/delete`,
       info
     )
+
     info.privateEvent
       ? dispatch(deletePrivateEvent(info.eventId))
       : dispatch(deletePublicEvent(info.eventId))
@@ -288,7 +289,7 @@ const eventsReducer = (state = initialState, action) => {
         return { ...event, privateEvent: true }
       })
       const publicEvents = action.payload.events.public.map(event => {
-        return { ...event, privateEvent: false }
+        return { ...event.event, privateEvent: false }
       })
       return {
         ...state,

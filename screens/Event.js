@@ -27,7 +27,6 @@ class Event extends React.Component {
   delete = async () => {
     const { code, id, privateEvent } = this.props.route.params
     const { userId, deleteEvent, navigation } = this.props
-    console.log('CODE: ', code, this.props.route.params)
     const info = {
       code: code,
       eventId: id,
