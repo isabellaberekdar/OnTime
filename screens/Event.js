@@ -60,6 +60,7 @@ class Event extends React.Component {
     const { code, id } = this.props.route.params
     const { userId, editStartLocation } = this.props
     const { eventStart } = this.state
+    this.setState({ locationError: null })
 
     /* convert eventStart into lat and lng */
 
