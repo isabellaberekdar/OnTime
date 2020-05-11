@@ -11,7 +11,8 @@ import {
   formatDateTimeEnglishEST,
   formatDateEST,
   formatTimeEST,
-  getUTCDate
+  getUTCDate,
+  getCoordinates
 } from "../utilities"
 class EditEvent extends React.Component {
   constructor(props) {
@@ -42,7 +43,8 @@ class EditEvent extends React.Component {
       showStartDatePicker: false,
       showEndDatePicker: false,
       eventStart: "",
-      days: weeklySchedule
+      days: weeklySchedule,
+      locationError: null
     }
   }
 
@@ -59,7 +61,7 @@ class EditEvent extends React.Component {
   }
 
   //TODO: validation
-  edit = () => {
+  edit = async () => {
     if (true) {
       const { editEvent, userId, editStartLocation } = this.props
       const { code, id, privateEvent } = this.props.route.params
@@ -72,7 +74,8 @@ class EditEvent extends React.Component {
         eventName,
         repeatWeekly,
         publicEvent,
-        eventStart
+        eventStart,
+        locationError
       } = this.state
 
       // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
@@ -81,45 +84,49 @@ class EditEvent extends React.Component {
       const end = !repeatWeekly ? start : formatDateEST(endDate)
 
       /* edit start location (only if something is entered into the field) */
-      let startLat, startLng
+      let startLat, startLng, coordinates
       const newStart = eventStart != ""
       if (newStart) {
         /* convert start location into coordinates here */
-        startLat = 1.3 //temp
-        startLng = 1.3 //temp
+        coordinates = await getCoordinates(eventStart, eventStart)
+        if (!coordinates) {
+          this.setState({ locationError: "Invalid location." })
+        }
       }
 
       /* if event is public a separate call is required to set a new location */
-      if (!privateEvent && newStart) {
+      if (!privateEvent && newStart && coordinates) {
+        console.log("setting location")
         const info = {
           userId: userId,
           eventId: id,
-          startLat: startLat, //temp
-          startLng: startLng //temp
+          startLat: coordinates.start.lat,
+          startLng: coordinates.start.lng
         }
         editStartLocation(info)
       }
-
-      const eventInfo = {
-        ownerId: userId,
-        eventId: this.props.route.params.id,
-        public: publicEvent,
-        changes: {
-          eventName: eventName,
-          startDate: start,
-          endDate: end,
-          repeatWeekly: repeatWeekly,
-          weeklySchedule: days,
-          time: time,
-          locationName: eventLocation,
-          lat: 1,
-          lng: 1,
-          ...(privateEvent && newStart && {startLat: startLat}),
-          ...(privateEvent && newStart && {startLng: startLng})
+      /* if no new start location or new start location and valid location entered by user, update event */
+      if ((newStart && coordinates) || !newStart) {
+        const eventInfo = {
+          ownerId: userId,
+          eventId: id,
+          public: publicEvent,
+          changes: {
+            eventName: eventName,
+            startDate: start,
+            endDate: end,
+            repeatWeekly: repeatWeekly,
+            weeklySchedule: days,
+            time: time,
+            locationName: eventLocation,
+            lat: 1,
+            lng: 1,
+            ...(privateEvent && newStart && { startLat: coordinates.start?.lat }),
+            ...(privateEvent && newStart && { startLng: coordinates.start?.lng })
+          }
         }
+        editEvent(eventInfo)
       }
-
-      editEvent(eventInfo)
     }
   }
 
@@ -161,9 +168,10 @@ class EditEvent extends React.Component {
       startDate,
       endDate,
       eventStart,
-      days
+      days,
+      locationError
     } = this.state
-
+    const { error } = this.props
     return (
       <View style={styles.container}>
         <WeekdayPicker daysString={days} onPress={this.setDays} />
@@ -185,7 +193,7 @@ class EditEvent extends React.Component {
           style={styles.input}
         />
         <TextInput
-          label='Event Starting Location'
+          label='Change Starting Location'
           value={eventStart}
           textContentType='location'
           autoCapitalize='none'
@@ -222,7 +230,8 @@ class EditEvent extends React.Component {
           value={repeatWeekly}
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
-        <Text>{this.props.error}</Text>
+        <Text>{error}</Text>
+        <Text>{locationError}</Text>
         <Button onPress={() => this.edit()}>Edit Event</Button>
       </View>
     )
