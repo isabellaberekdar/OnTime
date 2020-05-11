@@ -8,7 +8,7 @@ import {
   editStartLocationThunk,
   clearError
 } from "../store/utilities/events"
-import { binaryToStringSchedule, formatDateTimeEnglishEST } from "../utilities"
+import { binaryToStringSchedule, formatDateEnglishEST, convert24HourTime } from "../utilities"
 class Event extends React.Component {
   state = {
     eventStart: "",
@@ -103,7 +103,8 @@ class Event extends React.Component {
         <Text style={styles.text}>Location:</Text>
         <Text style={styles.text}>{locationName}</Text>
         <Text style={styles.text}>Starts:</Text>
-        <Text style={styles.text}>{formatDateTimeEnglishEST(startDate)}</Text>
+        <Text style={styles.text}>{formatDateEnglishEST(startDate)}</Text>
+        <Text style={styles.text}>at {convert24HourTime(time)}</Text>
         {repeatWeekly == 1 && (
           <>
             <Text style={styles.text}>{"Occurs weekly on:"}</Text>
