@@ -88,7 +88,7 @@ class EditEvent extends React.Component {
       const newStart = eventStart != ""
       if (newStart) {
         /* convert start location into coordinates here */
-        coordinates = await getCoordinates(eventStart, eventStart)
+        coordinates = await getCoordinates(eventStart, eventLocation)
         if (!coordinates) {
           this.setState({ locationError: "Invalid location." })
         }
@@ -96,7 +96,6 @@ class EditEvent extends React.Component {
 
       /* if event is public a separate call is required to set a new location */
       if (!privateEvent && newStart && coordinates) {
-        console.log("setting location")
         const info = {
           userId: userId,
           eventId: id,
@@ -119,8 +118,8 @@ class EditEvent extends React.Component {
             weeklySchedule: days,
             time: time,
             locationName: eventLocation,
-            lat: 1,
-            lng: 1,
+            lat: coordinates.end.lat,
+            lng: coordinates.end.lng,
             ...(privateEvent && newStart && { startLat: coordinates.start?.lat }),
             ...(privateEvent && newStart && { startLng: coordinates.start?.lng })
           }
