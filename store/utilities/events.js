@@ -19,7 +19,9 @@ import {
   SEARCH_ERROR,
   CLEAR_ERROR,
   EDIT_START_LOCATION,
-  EDIT_START_LOCATION_ERROR
+  EDIT_START_LOCATION_ERROR,
+  LEAVE_EVENT,
+  LEAVE_EVENT_ERROR
 } from "../../actionTypes"
 
 // ACTION CREATORS
@@ -134,6 +136,20 @@ const editStartLocation = () => {
   }
 }
 
+const leaveEvent = eventInfo => {
+  return {
+    payload: eventInfo,
+    type: LEAVE_EVENT
+  }
+}
+
+const leaveEventError = () => {
+  return {
+    payload: "There was an error when leaving the event.",
+    type: LEAVE_EVENT_ERROR
+  }
+}
+
 export const clearError = () => {
   return {
     type: CLEAR_ERROR
@@ -244,13 +260,6 @@ export const searchEventsThunk = query => async dispatch => {
   }
 }
 
-/* info:
-  userId,
-  startLat,
-  startLng,
-  code
-*/
-
 export const joinEventThunk = info => async dispatch => {
   try {
     const { data } = await axios.post(
@@ -258,7 +267,6 @@ export const joinEventThunk = info => async dispatch => {
       info
     )
 
-    console.log("JOIN RESPONSE: ", data)
     if (data.event) {
       const updatedEvent = {
         ...data.event,
@@ -295,8 +303,19 @@ export const editStartLocationThunk = info => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/edit/start`,
       info
     )
-    console.log(data)
     data.eventId ? dispatch(editStartLocation()) : dispatch(editStartLocationError())
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const leaveEventThunk = info => async dispatch => {
+  try {
+    const { data } = await axios.delete(
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/leave`,
+      {data: info},
+    )
+    data.userId ? dispatch(leaveEvent(data)) : dispatch(leaveEventError())
   } catch (error) {
     console.log(error)
   }
@@ -313,7 +332,8 @@ const initialState = {
   successfulEventEdit: false,
   successfulSearch: false,
   successfulJoin: false,
-  successfulStartLocationEdit: false
+  successfulStartLocationEdit: false,
+  successfulLeave: false
 }
 
 const eventsReducer = (state = initialState, action) => {
@@ -384,6 +404,7 @@ const eventsReducer = (state = initialState, action) => {
         successfulEventDeletion: false,
         successfulJoin: false,
         successfulStartLocationEdit: false,
+        successfulLeave: false,
         searchResults: []
       }
     case EDIT_PUBLIC_EVENT:
@@ -452,6 +473,22 @@ const eventsReducer = (state = initialState, action) => {
         ...state,
         error: action.payload,
         successfulStartLocationEdit: false
+      }
+
+      case LEAVE_EVENT_ERROR:
+        return {
+          ...state,
+          error: action.payload,
+          successfulLeave: false,
+        }
+    case LEAVE_EVENT:
+      console.log()
+      return {
+        ...state,
+        error: null,
+        successfulLeave: true,
+        // remove event from local events list
+        public: state.public.filter(event => event.id != action.payload.eventId)
       }
     default:
       return state

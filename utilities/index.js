@@ -78,7 +78,6 @@ async function getCoordinates(start, end) {
   let url = urlBeginning + "origin=" + start + "&destination=" + end + key
 
   const { data } = await axios.get(url)
-  console.log(data)
   if (data.status == "NOT_FOUND") {
     return null
   } else {
@@ -87,8 +86,6 @@ async function getCoordinates(start, end) {
     const endingLat = data.routes[0].legs[0].end_location.lat
     const endingLong = data.routes[0].legs[0].end_location.lng
 
-    console.log("STARTING LAT = " + startingLat + "     STARTING LONG = " + startingLong)
-    console.log("ENDING LAT " + endingLat + "        ENDING LONG " + endingLong)
     const coordinates = {
       start: {
         lat: startingLat,

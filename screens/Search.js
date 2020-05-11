@@ -21,7 +21,6 @@ class Search extends React.Component {
   }
   render() {
     const { searchResults, error, id } = this.props
-    console.log("33333333333333", searchResults)
     const { query } = this.state
     return (
       <View style={styles.container}>

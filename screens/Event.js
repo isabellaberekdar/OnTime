@@ -6,6 +6,7 @@ import {
   joinEventThunk,
   deleteEventThunk,
   editStartLocationThunk,
+  leaveEventThunk,
   clearError
 } from "../store/utilities/events"
 import {
@@ -25,8 +26,8 @@ class Event extends React.Component {
   /* TODO: add error handling so that you can't submit with no event */
 
   componentDidUpdate() {
-    const { successfulJoin, successfulEventDeletion, navigation } = this.props
-    if (successfulJoin === true || successfulEventDeletion === true) {
+    const { successfulJoin, successfulEventDeletion, successfulLeave, navigation } = this.props
+    if (successfulJoin === true || successfulEventDeletion === true || successfulLeave) {
       navigation.navigate("Home")
     }
   }
@@ -62,9 +63,6 @@ class Event extends React.Component {
     const { eventStart } = this.state
     this.setState({ locationError: null })
 
-    /* convert eventStart into lat and lng */
-
-    /* get coordinates from eventStart */
     const coordinates = await getCoordinates(eventStart, eventStart)
     if (coordinates) {
       const info = {
@@ -82,7 +80,7 @@ class Event extends React.Component {
 
   delete = async () => {
     const { code, id, privateEvent } = this.props.route.params
-    const { userId, deleteEvent, navigation } = this.props
+    const { deleteEvent } = this.props
 
     const info = {
       code: code,
@@ -91,6 +89,18 @@ class Event extends React.Component {
     }
 
     deleteEvent(info)
+  }
+
+  leave = async () => {
+    const { id } = this.props.route.params
+    const { userId, leaveEvent } = this.props
+
+    const info = {
+      userId: userId,
+      eventId: id
+    }
+
+    leaveEvent(info)
   }
 
   render() {
@@ -151,13 +161,6 @@ class Event extends React.Component {
             <Button onPress={() => this.join()}>Join Event</Button>
           </>
         )}
-
-        {/* user can edit start location for an event they have already joined */}
-        {userId != ownerId && attendingIds.has(id) && !this.state.settingLocation && (
-          <Button onPress={() => this.setState({ settingLocation: true })}>
-            Change Start Location
-          </Button>
-        )}
         {settingLocation && attendingIds.has(id) && !successfulStartLocationEdit && (
           <>
             <TextInput
@@ -173,7 +176,17 @@ class Event extends React.Component {
           </>
         )}
         {successfulStartLocationEdit && <Text>Your start location has been updated.</Text>}
-
+        {/* user can edit start location for an event they have already joined, or they can leave that event */}
+        {userId != ownerId && attendingIds.has(id) && (
+          <>
+            {!this.state.settingLocation && (
+              <Button onPress={() => this.setState({ settingLocation: true })}>
+                Change Start Location
+              </Button>
+            )}
+            <Button onPress={() => this.leave()}>Leave Event</Button>
+          </>
+        )}
         {/* show delete button if the user is the event creator */}
         {userId == ownerId && <Button onPress={() => this.delete()}>Delete Event</Button>}
         <Text>{error}</Text>
@@ -212,6 +225,7 @@ const mapState = state => {
     successfulJoin: events.successfulJoin,
     successfulEventDeletion: events.successfulEventDeletion,
     successfulStartLocationEdit: events.successfulStartLocationEdit,
+    successfulLeave: events.successfulLeave,
     publicEvents: events.public
   }
 }
@@ -221,6 +235,7 @@ const mapDispatch = dispatch => {
     joinEvent: info => dispatch(joinEventThunk(info)),
     deleteEvent: info => dispatch(deleteEventThunk(info)),
     editStartLocation: info => dispatch(editStartLocationThunk(info)),
+    leaveEvent: info => dispatch(leaveEventThunk(info)),
     clearError: () => dispatch(clearError())
   }
 }
