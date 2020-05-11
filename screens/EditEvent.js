@@ -62,40 +62,38 @@ class EditEvent extends React.Component {
 
   //TODO: validation
   edit = async () => {
-    if (true) {
-      const { editEvent, userId, editStartLocation } = this.props
-      const { code, id, privateEvent } = this.props.route.params
+    const { editEvent, userId, editStartLocation } = this.props
+    const { code, id, privateEvent } = this.props.route.params
 
-      const {
-        eventLocation,
-        days,
-        startDate,
-        endDate,
-        eventName,
-        repeatWeekly,
-        publicEvent,
-        eventStart,
-        locationError
-      } = this.state
+    const {
+      eventLocation,
+      days,
+      startDate,
+      endDate,
+      eventName,
+      repeatWeekly,
+      publicEvent,
+      eventStart,
+      locationError
+    } = this.state
 
-      // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
-      const start = formatDateEST(startDate)
-      const time = formatTimeEST(startDate)
-      const end = !repeatWeekly ? start : formatDateEST(endDate)
+    // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
+    const start = formatDateEST(startDate)
+    const time = formatTimeEST(startDate)
+    const end = !repeatWeekly ? start : formatDateEST(endDate)
 
-      /* edit start location (only if something is entered into the field) */
-      let startLat, startLng, coordinates
-      const newStart = eventStart != ""
-      if (newStart) {
-        /* convert start location into coordinates here */
-        coordinates = await getCoordinates(eventStart, eventLocation)
-        if (!coordinates) {
-          this.setState({ locationError: "Invalid location." })
-        }
-      }
+    /* edit start location (only if something is entered into the field) */
+    let startLat, startLng, coordinates
+    const newStart = eventStart != ""
+    newStart
+      ? (coordinates = await getCoordinates(eventStart, eventLocation))
+      : (coordinates = await getCoordinates(eventLocation, eventLocation))
 
-      /* if event is public a separate call is required to set a new location */
-      if (!privateEvent && newStart && coordinates) {
+    if (!coordinates) {
+      this.setState({ locationError: "Invalid location." })
+    } else {
+      /* if event is public, a separate call is required to set a new start location */
+      if (!privateEvent && newStart) {
         const info = {
           userId: userId,
           eventId: id,
@@ -104,28 +102,26 @@ class EditEvent extends React.Component {
         }
         editStartLocation(info)
       }
-      /* if no new start location or new start location and valid location entered by user, update event */
-      if ((newStart && coordinates) || !newStart) {
-        const eventInfo = {
-          ownerId: userId,
-          eventId: id,
-          public: publicEvent,
-          changes: {
-            eventName: eventName,
-            startDate: start,
-            endDate: end,
-            repeatWeekly: repeatWeekly,
-            weeklySchedule: days,
-            time: time,
-            locationName: eventLocation,
-            lat: coordinates.end.lat,
-            lng: coordinates.end.lng,
-            ...(privateEvent && newStart && { startLat: coordinates.start?.lat }),
-            ...(privateEvent && newStart && { startLng: coordinates.start?.lng })
-          }
+
+      const eventInfo = {
+        ownerId: userId,
+        eventId: id,
+        public: publicEvent,
+        changes: {
+          eventName: eventName,
+          startDate: start,
+          endDate: end,
+          repeatWeekly: repeatWeekly,
+          weeklySchedule: days,
+          time: time,
+          locationName: eventLocation,
+          lat: coordinates.end.lat,
+          lng: coordinates.end.lng,
+          ...(privateEvent && newStart && { startLat: coordinates.start?.lat }),
+          ...(privateEvent && newStart && { startLng: coordinates.start?.lng })
         }
-        editEvent(eventInfo)
       }
+      editEvent(eventInfo)
     }
   }
 
