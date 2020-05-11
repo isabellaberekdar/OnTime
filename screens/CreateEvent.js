@@ -72,7 +72,6 @@ class CreateEvent extends React.Component {
       const end = !repeatWeekly ? start : formatDateEST(endDate)
 
       const coordinates = await getCoordinates(eventStart, eventLocation)
-      console.log(coordinates)
 
       if (coordinates) {
         const eventInfo = {

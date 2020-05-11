@@ -295,6 +295,7 @@ export const editStartLocationThunk = info => async dispatch => {
       `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/edit/start`,
       info
     )
+    console.log(data)
     data.eventId ? dispatch(editStartLocation()) : dispatch(editStartLocationError())
   } catch (error) {
     console.log(error)

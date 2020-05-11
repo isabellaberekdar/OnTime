@@ -8,12 +8,18 @@ import {
   editStartLocationThunk,
   clearError
 } from "../store/utilities/events"
-import { binaryToStringSchedule, formatDateEnglishEST, convert24HourTime } from "../utilities"
+import {
+  binaryToStringSchedule,
+  formatDateEnglishEST,
+  convert24HourTime,
+  getCoordinates
+} from "../utilities"
 class Event extends React.Component {
   state = {
     eventStart: "",
     settingLocation: false,
-    error: null
+    error: null,
+    locationError: null
   }
 
   /* TODO: add error handling so that you can't submit with no event */
@@ -33,17 +39,21 @@ class Event extends React.Component {
     const { code } = this.props.route.params
     const { userId, joinEvent } = this.props
     const { eventStart } = this.state
+    this.setState({ locationError: null })
 
-    /* convert eventStart into lat and lng */
-
-    const info = {
-      userId: userId,
-      code: code,
-      startLat: 1, // temp
-      startLng: 1 // temp
+    /* get coordinates from eventStart */
+    const coordinates = await getCoordinates(eventStart, eventStart)
+    if (coordinates) {
+      const info = {
+        userId: userId,
+        code: code,
+        startLat: coordinates.start.lat,
+        startLng: coordinates.start.lng
+      }
+      joinEvent(info)
+    } else {
+      this.setState({ locationError: "The location that you have entered is invalid." })
     }
-
-    joinEvent(info)
   }
 
   edit = async () => {
@@ -53,14 +63,20 @@ class Event extends React.Component {
 
     /* convert eventStart into lat and lng */
 
-    const info = {
-      userId: userId,
-      eventId: id,
-      startLat: 1, //temp
-      startLng: 1  //temp
+    /* get coordinates from eventStart */
+    const coordinates = await getCoordinates(eventStart, eventStart)
+    if (coordinates) {
+      const info = {
+        userId: userId,
+        code: code,
+        eventId: id,
+        startLat: coordinates.start.lat,
+        startLng: coordinates.start.lng
+      }
+      editStartLocation(info)
+    } else {
+      this.setState({ locationError: "The location that you have entered is invalid." })
     }
-
-    editStartLocation(info)
   }
 
   delete = async () => {
@@ -93,7 +109,7 @@ class Event extends React.Component {
       attendees
     } = this.props.route.params
 
-    const { eventStart, settingLocation } = this.state
+    const { eventStart, settingLocation, locationError } = this.state
     // get a set of ids of events the user is attending
     const attendingIds = new Set(publicEvents.map(event => event.id))
 
@@ -144,7 +160,7 @@ class Event extends React.Component {
         {settingLocation && attendingIds.has(id) && !successfulStartLocationEdit && (
           <>
             <TextInput
-              label='Event Starting Location'
+              label='New Start Location'
               value={eventStart}
               textContentType='location'
               autoCapitalize='none'
@@ -160,6 +176,7 @@ class Event extends React.Component {
         {/* show delete button if the user is the event creator */}
         {userId == ownerId && <Button onPress={() => this.delete()}>Delete Event</Button>}
         <Text>{error}</Text>
+        <Text>{locationError}</Text>
       </View>
     )
   }
