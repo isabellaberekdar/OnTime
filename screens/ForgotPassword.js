@@ -11,7 +11,6 @@ class ForgotPassword extends React.Component
         email: "",
         password: "",
         new_password: "",
-        //confirm_password: "",
     }
 
     on_password_change = password =>
@@ -24,40 +23,19 @@ class ForgotPassword extends React.Component
         this.setState({ new_password })
     }
 
-    // on_confirm_pass_change = confirm_password =>
-    // {
-    //     this.setState({ confirm_password })
-    // }
-
     post_password_to_backend = async () =>
     {
         const { email, password, new_password } = this.state
 
         const back_end_url = "https://avian-infusion-276423.ue.r.appspot.com/api/account/edit/password"
 
-        // const { email, old_password, password } = this.state
-
-        // if ( password !== confirm_password )
-        // {
-        //     // alert("Password does not match!")
-        //     return
-        // }
-        // else
-        // {
-        //     // alert ("Password matches!")
-        //     await axios.put(back_end_url, this.state)
-
-        //     await this.props.navigation.navigate("Home")
-        // }
-
         if ( new_password == "" )
         {
-            alert ("New Password ")
+            alert ("Password Empty")
             return
         }
         else
         {
-            // alert ("New Password Read")
             await axios.put(back_end_url, this.state)
             await this.props.navigation.navigate("Home")
         }
@@ -69,7 +47,6 @@ class ForgotPassword extends React.Component
             <View style={styles.container}>
                  <TextInput
                     label='Enter Email'
-                    textContentType='email'
                     autoCapitalize='none'
                     onChangeText={ email => this.setState({ email }) }
                     style={styles.input_password}
@@ -77,7 +54,6 @@ class ForgotPassword extends React.Component
 
                 <TextInput
                     label='Old Password'
-                    textContentType='password'
                     autoCapitalize='none'
                     onChangeText={ this.on_password_change }
                     secureTextEntry={ true }
@@ -86,21 +62,11 @@ class ForgotPassword extends React.Component
 
                 <TextInput
                     label='New Password'
-                    textContentType='password'
                     autoCapitalize='none'
                     onChangeText={ this.on_new_pass_change }
                     secureTextEntry={ true }
                     style={styles.input_password}
                     />
-
-                {/* <TextInput
-                    label='Confirm Password'
-                    textContentType='password'
-                    autoCapitalize='none'
-                    onChangeText={ this.on_confirm_pass_change }
-                    secureTextEntry={ true }
-                    style={styles.input_password}
-                /> */}
 
                 <Button style={ styles.submit_fields }
                     onPress={ this.post_password_to_backend }
