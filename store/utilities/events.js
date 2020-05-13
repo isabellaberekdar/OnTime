@@ -23,6 +23,7 @@ import {
   LEAVE_EVENT,
   LEAVE_EVENT_ERROR
 } from "../../actionTypes"
+import {ONTIME_API} from "react-native-dotenv"
 
 // ACTION CREATORS
 const getEvents = events => {
@@ -174,7 +175,7 @@ export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.private ? "private" : "public"
     const { data } = await axios.post(
-      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/create`,
+      `${ONTIME_API}/events/${type}/create`,
       eventInfo
     )
     if (data.eventName == undefined) {
@@ -214,7 +215,7 @@ export const editEventThunk = eventInfo => async dispatch => {
     delete eventInfo["public"]
 
     const { data } = await axios.put(
-      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/edit`,
+      `${ONTIME_API}/api/events/${type}/edit`,
       eventInfo
     )
 
@@ -242,7 +243,7 @@ export const editEventThunk = eventInfo => async dispatch => {
 export const searchEventsThunk = query => async dispatch => {
   try {
     const { data } = await axios.put(
-      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/search`,
+      `${ONTIME_API}/api/events/public/search`,
       query
     )
 
@@ -263,7 +264,7 @@ export const searchEventsThunk = query => async dispatch => {
 export const joinEventThunk = info => async dispatch => {
   try {
     const { data } = await axios.post(
-      "https://avian-infusion-276423.ue.r.appspot.com/api/events/public/join",
+      `${ONTIME_API}/api/events/public/join`,
       info
     )
 
@@ -285,7 +286,7 @@ export const deleteEventThunk = info => async dispatch => {
   try {
     const type = info.privateEvent ? "private" : "public"
     const { data } = await axios.put(
-      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/delete`,
+      `${ONTIME_API}/api/events/${type}/delete`,
       info
     )
 
@@ -300,7 +301,7 @@ export const deleteEventThunk = info => async dispatch => {
 export const editStartLocationThunk = info => async dispatch => {
   try {
     const { data } = await axios.put(
-      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/edit/start`,
+      `${ONTIME_API}/api/events/public/edit/start`,
       info
     )
     data.eventId ? dispatch(editStartLocation()) : dispatch(editStartLocationError())
@@ -312,7 +313,7 @@ export const editStartLocationThunk = info => async dispatch => {
 export const leaveEventThunk = info => async dispatch => {
   try {
     const { data } = await axios.delete(
-      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/leave`,
+      `${ONTIME_API}/api/events/public/leave`,
       {data: info},
     )
     data.userId ? dispatch(leaveEvent(data)) : dispatch(leaveEventError())
