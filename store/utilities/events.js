@@ -2,15 +2,26 @@ import axios from "axios"
 import {
   LOG_IN_USER,
   SET_EVENTS,
-  EDIT_PUBLIC_EVENT,
-  EDIT_PRIVATE_EVENT,
-  EDIT_EVENT_ERROR,
   CREATE_PUBLIC_EVENT,
   CREATE_PRIVATE_EVENT,
-  CREATE_EVENT_ERROR,
-  SEARCH_ERROR,
+  JOIN_EVENT,
+  EDIT_PUBLIC_EVENT,
+  EDIT_PRIVATE_EVENT,
   SEARCH_EVENTS,
-  CLEAR_ERROR
+  DELETE_PRIVATE_EVENT,
+  DELETE_PUBLIC_EVENT,
+  DELETE_EVENT_ERROR,
+  REMOVE_EVENT,
+  REMOVE_EVENT_ERROR,
+  CREATE_EVENT_ERROR,
+  EDIT_EVENT_ERROR,
+  JOIN_ERROR,
+  SEARCH_ERROR,
+  CLEAR_ERROR,
+  EDIT_START_LOCATION,
+  EDIT_START_LOCATION_ERROR,
+  LEAVE_EVENT,
+  LEAVE_EVENT_ERROR
 } from "../../actionTypes"
 
 // ACTION CREATORS
@@ -18,6 +29,13 @@ const getEvents = events => {
   return {
     type: GET_EVENTS,
     payload: { public: events.public, private: events.private }
+  }
+}
+
+const joinEvent = updatedEvent => {
+  return {
+    type: JOIN_EVENT,
+    payload: updatedEvent
   }
 }
 
@@ -39,6 +57,27 @@ const editPublicEvent = event => {
   return {
     type: EDIT_PUBLIC_EVENT,
     payload: event
+  }
+}
+
+const deletePrivateEvent = eventId => {
+  return {
+    type: DELETE_PRIVATE_EVENT,
+    payload: eventId
+  }
+}
+
+const deletePublicEvent = eventId => {
+  return {
+    type: DELETE_PUBLIC_EVENT,
+    payload: eventId
+  }
+}
+
+const deleteEventError = () => {
+  return {
+    type: DELETE_EVENT_ERROR,
+    payload: "There was an error deleting the event."
   }
 }
 
@@ -77,6 +116,40 @@ const searchError = error => {
   }
 }
 
+const joinEventError = error => {
+  return {
+    payload: error,
+    type: JOIN_ERROR
+  }
+}
+
+const editStartLocationError = error => {
+  return {
+    payload: "There was an error updating your start location.",
+    type: EDIT_START_LOCATION_ERROR
+  }
+}
+
+const editStartLocation = () => {
+  return {
+    type: EDIT_START_LOCATION
+  }
+}
+
+const leaveEvent = eventInfo => {
+  return {
+    payload: eventInfo,
+    type: LEAVE_EVENT
+  }
+}
+
+const leaveEventError = () => {
+  return {
+    payload: "There was an error when leaving the event.",
+    type: LEAVE_EVENT_ERROR
+  }
+}
+
 export const clearError = () => {
   return {
     type: CLEAR_ERROR
@@ -101,10 +174,9 @@ export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.private ? "private" : "public"
     const { data } = await axios.post(
-      `[API-URL]/api/events/${type}/create`,
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/create`,
       eventInfo
     )
-
     if (data.eventName == undefined) {
       dispatch(createEventError())
     } else {
@@ -121,7 +193,10 @@ export const createEventThunk = eventInfo => async dispatch => {
         time: data.time,
         weeklySchedule: data.weeklySchedule,
         code: data.code,
-        privateEvent: type == "private"
+        privateEvent: type == "private",
+        attendees: 1,
+        startLat: eventInfo.startLat,
+        startLng: eventInfo.startLng
       }
 
       type === "public"
@@ -139,11 +214,9 @@ export const editEventThunk = eventInfo => async dispatch => {
     delete eventInfo["public"]
 
     const { data } = await axios.put(
-      `[API-URL]/api/events/${type}/edit`,
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/edit`,
       eventInfo
     )
-
-    //TODO: handle notifications
 
     if (!data.eventName) {
       dispatch(editEventError())
@@ -169,10 +242,10 @@ export const editEventThunk = eventInfo => async dispatch => {
 export const searchEventsThunk = query => async dispatch => {
   try {
     const { data } = await axios.put(
-      `[API-URL]/api/events/public/search`,
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/search`,
       query
     )
-    console.log(data)
+
     if (data.error) {
       dispatch(searchError("There was an error while searching."))
     }
@@ -187,16 +260,80 @@ export const searchEventsThunk = query => async dispatch => {
   }
 }
 
-// REDUCER
+export const joinEventThunk = info => async dispatch => {
+  try {
+    const { data } = await axios.post(
+      "https://avian-infusion-276423.ue.r.appspot.com/api/events/public/join",
+      info
+    )
 
+    if (data.event) {
+      const updatedEvent = {
+        ...data.event,
+        attendees: data.event.attendees + 1
+      }
+      dispatch(joinEvent(updatedEvent))
+    } else {
+      dispatch(joinEventError("There was an error joining the event."))
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const deleteEventThunk = info => async dispatch => {
+  try {
+    const type = info.privateEvent ? "private" : "public"
+    const { data } = await axios.put(
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/${type}/delete`,
+      info
+    )
+
+    info.privateEvent
+      ? dispatch(deletePrivateEvent(info.eventId))
+      : dispatch(deletePublicEvent(info.eventId))
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const editStartLocationThunk = info => async dispatch => {
+  try {
+    const { data } = await axios.put(
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/edit/start`,
+      info
+    )
+    data.eventId ? dispatch(editStartLocation()) : dispatch(editStartLocationError())
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export const leaveEventThunk = info => async dispatch => {
+  try {
+    const { data } = await axios.delete(
+      `https://avian-infusion-276423.ue.r.appspot.com/api/events/public/leave`,
+      {data: info},
+    )
+    data.userId ? dispatch(leaveEvent(data)) : dispatch(leaveEventError())
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+// REDUCER
 const initialState = {
-  error: false,
   private: [],
   public: [],
   searchResults: [],
+  error: false,
   successfulEventCreation: false,
+  successfulEventDeletion: false,
   successfulEventEdit: false,
-  successfulSearch: false
+  successfulSearch: false,
+  successfulJoin: false,
+  successfulStartLocationEdit: false,
+  successfulLeave: false
 }
 
 const eventsReducer = (state = initialState, action) => {
@@ -208,7 +345,12 @@ const eventsReducer = (state = initialState, action) => {
         return { ...event, privateEvent: true }
       })
       const publicEvents = action.payload.events.public.map(event => {
-        return { ...event, privateEvent: false }
+        return {
+          ...event.event,
+          startLat: event.user.startLat,
+          startLng: event.user.startLng,
+          privateEvent: false
+        }
       })
       return {
         ...state,
@@ -246,6 +388,12 @@ const eventsReducer = (state = initialState, action) => {
         error: action.payload,
         successfulSearch: false
       }
+    case JOIN_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulJoin: false
+      }
     case CLEAR_ERROR:
       return {
         ...state,
@@ -253,6 +401,10 @@ const eventsReducer = (state = initialState, action) => {
         successfulEventCreation: false,
         successfulEventEdit: false,
         successfulSearch: false,
+        successfulEventDeletion: false,
+        successfulJoin: false,
+        successfulStartLocationEdit: false,
+        successfulLeave: false,
         searchResults: []
       }
     case EDIT_PUBLIC_EVENT:
@@ -277,6 +429,66 @@ const eventsReducer = (state = initialState, action) => {
         error: null,
         successfulSearch: true,
         searchResults: action.payload
+      }
+    case JOIN_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulJoin: true,
+        // add event to local events list
+        public: [...state.public, action.payload]
+      }
+    case DELETE_EVENT_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulEventDeletion: false
+      }
+    case DELETE_PRIVATE_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulEventDeletion: true,
+        // remove event from local events list
+        private: state.private.filter(event => event.id != action.payload)
+      }
+    case DELETE_PUBLIC_EVENT:
+      return {
+        ...state,
+        error: null,
+        successfulEventDeletion: true,
+        // remove event from local events list
+        public: state.public.filter(event => event.id != action.payload)
+      }
+
+    case EDIT_START_LOCATION:
+      return {
+        ...state,
+        error: null,
+        successfulStartLocationEdit: true
+        // update start lat and start lng locally?
+      }
+    case EDIT_START_LOCATION_ERROR:
+      return {
+        ...state,
+        error: action.payload,
+        successfulStartLocationEdit: false
+      }
+
+      case LEAVE_EVENT_ERROR:
+        return {
+          ...state,
+          error: action.payload,
+          successfulLeave: false,
+        }
+    case LEAVE_EVENT:
+      console.log()
+      return {
+        ...state,
+        error: null,
+        successfulLeave: true,
+        // remove event from local events list
+        public: state.public.filter(event => event.id != action.payload.eventId)
       }
     default:
       return state

@@ -8,20 +8,24 @@ import {
   formatDateEnglishEST,
   formatDateTimeEnglishEST,
   formatDateEST,
-  formatTimeEST
+  formatTimeEST,
+  getCoordinates
 } from "../utilities"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
 
 class CreateEvent extends React.Component {
   state = {
+    locationError: null,
     eventName: "",
     startDate: new Date(Date.now()),
     endDate: new Date(Date.now()),
+    eventStart: "",
     eventLocation: "",
     publicEvent: false,
     repeatWeekly: false,
     showStartDatePicker: false,
     showEndDatePicker: false,
+    distance: "",
     // start day picker on top with the current day highlighted (because current date is the default)
     // String format: Su Mo Tu We Th Fr Sa
     days:
@@ -49,12 +53,12 @@ class CreateEvent extends React.Component {
   // event name not empty
   // event location not empty
   // start date must be before or equal to end date
-  // valid location (must get coordinates)
-  create = () => {
+  create = async () => {
     if (true) {
       const { createEvent, userId } = this.props
       const {
         eventLocation,
+        eventStart,
         days,
         startDate,
         endDate,
@@ -67,21 +71,32 @@ class CreateEvent extends React.Component {
       const time = formatTimeEST(startDate)
       const end = !repeatWeekly ? start : formatDateEST(endDate)
 
-      const eventInfo = {
-        ownerId: userId,
-        eventName: eventName,
-        startDate: start,
-        endDate: end,
-        repeatWeekly: repeatWeekly,
-        weeklySchedule: days,
-        time: time,
-        locationName: eventLocation,
-        private: !publicEvent,
-        lat: 1,
-        lng: 1
-      }
+      const coordinates = await getCoordinates(eventStart, eventLocation)
 
-      createEvent(eventInfo)
+      if (coordinates) {
+        const eventInfo = {
+          ownerId: userId,
+          eventName: eventName,
+          startDate: start,
+          endDate: end,
+          repeatWeekly: repeatWeekly,
+          weeklySchedule: days,
+          time: time,
+          locationName: eventLocation,
+          private: !publicEvent,
+          lat: coordinates.end.lat,
+          lng: coordinates.end.lng,
+          startLat: coordinates.start.lat,
+          startLng: coordinates.start.lng
+        }
+
+        createEvent(eventInfo)
+        this.setState({ locationError: null })
+      } else {
+        this.setState({
+          locationError: "At least one of the locations you have entered is invalid."
+        })
+      }
     }
   }
 
@@ -105,13 +120,19 @@ class CreateEvent extends React.Component {
     let newDayString = "0000000"
     const dayIndex = date.getDay()
     updatedDays = newDayString.substring(0, dayIndex) + "1" + newDayString.substring(dayIndex + 1)
-    this.setState({ startDate: date, showStartDatePicker: false, days: updatedDays })
+    this.setState({
+      startDate: date,
+      showStartDatePicker: false,
+      days: updatedDays
+    })
   }
 
   render() {
     const {
+      locationError,
       eventName,
       eventLocation,
+      eventStart,
       publicEvent,
       repeatWeekly,
       showStartDatePicker,
@@ -132,7 +153,16 @@ class CreateEvent extends React.Component {
           style={styles.input}
         />
         <TextInput
-          label='Event Location'
+          label='Event Starting Location'
+          value={eventStart}
+          textContentType='location'
+          autoCapitalize='none'
+          onChangeText={eventStart => this.setState({ eventStart })}
+          mode='outlined'
+          style={styles.input}
+        />
+        <TextInput
+          label='Event Destination'
           value={eventLocation}
           textContentType='location'
           autoCapitalize='none'
@@ -175,6 +205,7 @@ class CreateEvent extends React.Component {
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
         <Text>{this.props.error}</Text>
+        <Text>{locationError}</Text>
         <Button onPress={() => this.create()}>Create Event</Button>
       </View>
     )

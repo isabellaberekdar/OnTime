@@ -51,7 +51,7 @@ export const logInUserThunk = (email, password, pushToken) => async dispatch => 
     }
 
     const { data } = await axios.post(
-      "[API-URL]/api/login",
+      "https://avian-infusion-276423.ue.r.appspot.com/api/login",
       credentials
     )
     if (data.authError) {
@@ -82,7 +82,7 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
     }
 
     const { data } = await axios.post(
-      "[API-URL]/api/register",
+      "https://avian-infusion-276423.ue.r.appspot.com/api/register",
       info,
       config
     )

@@ -1,17 +1,18 @@
 import React from "react"
+import axios from "axios"
 import { View, StyleSheet, Text, TouchableNativeFeedbackBase } from "react-native"
 import { Button, TextInput, Switch } from "react-native-paper"
-import { editEventThunk, clearError } from "../store/utilities/events"
+import { editEventThunk, editStartLocationThunk, clearError } from "../store/utilities/events"
 import { connect } from "react-redux"
 import { WeekdayPicker } from "../components"
 import DateTimePickerModal from "react-native-modal-datetime-picker"
-
 import {
   formatDateEnglishEST,
   formatDateTimeEnglishEST,
   formatDateEST,
   formatTimeEST,
-  getUTCDate
+  getUTCDate,
+  getCoordinates
 } from "../utilities"
 class EditEvent extends React.Component {
   constructor(props) {
@@ -41,7 +42,9 @@ class EditEvent extends React.Component {
       repeatWeekly: repeatWeekly == 0 ? false : true,
       showStartDatePicker: false,
       showEndDatePicker: false,
-      days: weeklySchedule
+      eventStart: "",
+      days: weeklySchedule,
+      locationError: null
     }
   }
 
@@ -58,26 +61,51 @@ class EditEvent extends React.Component {
   }
 
   //TODO: validation
-  edit = () => {
-    if (true) {
-      const { editEvent, userId } = this.props
-      const {
-        eventLocation,
-        days,
-        startDate,
-        endDate,
-        eventName,
-        repeatWeekly,
-        publicEvent
-      } = this.state
+  edit = async () => {
+    const { editEvent, userId, editStartLocation } = this.props
+    const { code, id, privateEvent } = this.props.route.params
 
-      // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
-      const start = formatDateEST(startDate)
-      const time = formatTimeEST(startDate)
-      const end = !repeatWeekly ? start : formatDateEST(endDate)
+    const {
+      eventLocation,
+      days,
+      startDate,
+      endDate,
+      eventName,
+      repeatWeekly,
+      publicEvent,
+      eventStart,
+      locationError
+    } = this.state
+
+    // startDate and endDate are in format: 2020-04-23T22:05:43.170Z
+    const start = formatDateEST(startDate)
+    const time = formatTimeEST(startDate)
+    const end = !repeatWeekly ? start : formatDateEST(endDate)
+
+    /* edit start location (only if something is entered into the field) */
+    let startLat, startLng, coordinates
+    const newStart = eventStart != ""
+    newStart
+      ? (coordinates = await getCoordinates(eventStart, eventLocation))
+      : (coordinates = await getCoordinates(eventLocation, eventLocation))
+
+    if (!coordinates) {
+      this.setState({ locationError: "Invalid location." })
+    } else {
+      /* if event is public, a separate call is required to set a new start location */
+      if (!privateEvent && newStart) {
+        const info = {
+          userId: userId,
+          eventId: id,
+          startLat: coordinates.start.lat,
+          startLng: coordinates.start.lng
+        }
+        editStartLocation(info)
+      }
+
       const eventInfo = {
         ownerId: userId,
-        eventId: this.props.route.params.id,
+        eventId: id,
         public: publicEvent,
         changes: {
           eventName: eventName,
@@ -87,11 +115,12 @@ class EditEvent extends React.Component {
           weeklySchedule: days,
           time: time,
           locationName: eventLocation,
-          lat: 1,
-          lng: 1
+          lat: coordinates.end.lat,
+          lng: coordinates.end.lng,
+          ...(privateEvent && newStart && { startLat: coordinates.start?.lat }),
+          ...(privateEvent && newStart && { startLng: coordinates.start?.lng })
         }
       }
-
       editEvent(eventInfo)
     }
   }
@@ -116,7 +145,11 @@ class EditEvent extends React.Component {
     let newDayString = "0000000"
     const dayIndex = date.getDay()
     updatedDays = newDayString.substring(0, dayIndex) + "1" + newDayString.substring(dayIndex + 1)
-    this.setState({ startDate: date, showStartDatePicker: false, days: updatedDays })
+    this.setState({
+      startDate: date,
+      showStartDatePicker: false,
+      days: updatedDays
+    })
   }
 
   render() {
@@ -129,9 +162,11 @@ class EditEvent extends React.Component {
       showEndDatePicker,
       startDate,
       endDate,
-      days
+      eventStart,
+      days,
+      locationError
     } = this.state
-
+    const { error } = this.props
     return (
       <View style={styles.container}>
         <WeekdayPicker daysString={days} onPress={this.setDays} />
@@ -149,6 +184,15 @@ class EditEvent extends React.Component {
           textContentType='location'
           autoCapitalize='none'
           onChangeText={eventLocation => this.setState({ eventLocation })}
+          mode='outlined'
+          style={styles.input}
+        />
+        <TextInput
+          label='Change Starting Location'
+          value={eventStart}
+          textContentType='location'
+          autoCapitalize='none'
+          onChangeText={eventStart => this.setState({ eventStart })}
           mode='outlined'
           style={styles.input}
         />
@@ -181,7 +225,8 @@ class EditEvent extends React.Component {
           value={repeatWeekly}
           onValueChange={() => this.setState({ repeatWeekly: !repeatWeekly })}
         />
-        <Text>{this.props.error}</Text>
+        <Text>{error}</Text>
+        <Text>{locationError}</Text>
         <Button onPress={() => this.edit()}>Edit Event</Button>
       </View>
     )
@@ -214,7 +259,8 @@ const mapState = state => {
 const mapDispatch = dispatch => {
   return {
     editEvent: eventInfo => dispatch(editEventThunk(eventInfo)),
-    clearError: () => dispatch(clearError())
+    clearError: () => dispatch(clearError()),
+    editStartLocation: info => dispatch(editStartLocationThunk(info))
   }
 }
 

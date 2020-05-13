@@ -1,4 +1,6 @@
 import moment from "moment"
+import axios from "axios"
+import { API_KEY } from "react-native-dotenv"
 
 // Convert weekly schedule from binary string to a list of days. Ex: "1000110" -> "Sun Thu Fri"
 function binaryToStringSchedule(binarySchedule) {
@@ -65,12 +67,39 @@ function formatTimeEST(date) {
 }
 
 // Convert from a date and time in EST to a UTC Date object
-// 2020-04-28 and 06:28:00 to: 
+// 2020-04-28 and 06:28:00 to:
 function getUTCDate(date, time) {
   return moment(`${date} ${time}`, "YYYY-MM-DD hh:mm A").toDate()
 }
 
+async function getCoordinates(start, end) {
+  let key = "&mode=transit&key=" + API_KEY
+  let urlBeginning = "https://maps.googleapis.com/maps/api/directions/json?"
+  let url = urlBeginning + "origin=" + start + "&destination=" + end + key
 
+  const { data } = await axios.get(url)
+  if (data.status == "NOT_FOUND") {
+    return null
+  } else {
+    const startingLat = data.routes[0].legs[0].start_location.lat
+    const startingLong = data.routes[0].legs[0].start_location.lng
+    const endingLat = data.routes[0].legs[0].end_location.lat
+    const endingLong = data.routes[0].legs[0].end_location.lng
+
+    const coordinates = {
+      start: {
+        lat: startingLat,
+        lng: startingLong
+      },
+      end: {
+        lat: endingLat,
+        lng: endingLong
+      }
+    }
+
+    return coordinates
+  }
+}
 
 export {
   binaryToStringSchedule,
@@ -79,5 +108,6 @@ export {
   formatDateEnglishEST,
   formatDateEST,
   formatTimeEST,
-  getUTCDate
+  getUTCDate,
+  getCoordinates
 }

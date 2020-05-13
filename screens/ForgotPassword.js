@@ -2,37 +2,75 @@ import React, { Component } from 'react'
 import { Text, View, StyleSheet } from 'react-native'
 import { TextInput, Button } from 'react-native-paper';
 
+import axios from "axios"
+
 class ForgotPassword extends React.Component
 {
     state =
     {
-        email: ""
+        email: "",
+        password: "",
+        new_password: "",
     }
 
-    validateEmail = ( email ) =>
+    on_password_change = password =>
     {
-        return true
+        this.setState({ password })
     }
 
+    on_new_pass_change = new_password =>
+    {
+        this.setState({ new_password })
+    }
 
+    post_password_to_backend = async () =>
+    {
+        const { email, password, new_password } = this.state
+
+        const back_end_url = "https://avian-infusion-276423.ue.r.appspot.com/api/account/edit/password"
+
+        if ( new_password == "" )
+        {
+            alert ("Password Empty")
+            return
+        }
+        else
+        {
+            await axios.put(back_end_url, this.state)
+            await this.props.navigation.navigate("Home")
+        }
+    }
 
     render()
     {
-        const { email } = this.state
-
         return (
             <View style={styles.container}>
-                <TextInput
-                    label="Email"
-                    value={ email }
-                    textContentType="emailAddress"
-                    autoCapitalize="none"
-                    onChangeText={ email => this.setState({ email })}
-                    style={ styles.input_email }
-                    underlineColorAndroid="transparent"
-                />
+                 <TextInput
+                    label='Enter Email'
+                    autoCapitalize='none'
+                    onChangeText={ email => this.setState({ email }) }
+                    style={styles.input_password}
+                    />
 
-                <Button style={ styles.submit_email }>Submit</Button>
+                <TextInput
+                    label='Old Password'
+                    autoCapitalize='none'
+                    onChangeText={ this.on_password_change }
+                    secureTextEntry={ true }
+                    style={styles.input_password}
+                    />
+
+                <TextInput
+                    label='New Password'
+                    autoCapitalize='none'
+                    onChangeText={ this.on_new_pass_change }
+                    secureTextEntry={ true }
+                    style={styles.input_password}
+                    />
+
+                <Button style={ styles.submit_fields }
+                    onPress={ this.post_password_to_backend }
+                >Submit</Button>
             </View>
         )
     }
@@ -43,10 +81,10 @@ const styles = StyleSheet.create({
     {
         flex: 1,
         justifyContent: "center",
-        alignItems: "center",
+        alignItems: "center"
     },
 
-    input_email:
+    input_password:
     {
         width: "75%",
         borderRadius: 15,
@@ -54,7 +92,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 15,
     },
 
-    submit_email:
+    submit_fields:
     {
         alignItems: "center",
         justifyContent: "center",
