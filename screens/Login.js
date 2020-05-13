@@ -3,6 +3,8 @@ import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
 import { logInUserThunk, clearError } from "../store/utilities/users"
+import { Notifications } from 'expo'
+import * as Permissions from 'expo-permissions' 
 
 class Login extends React.Component {
   state = {
@@ -21,9 +23,10 @@ class Login extends React.Component {
   }
 
   logIn = async (email, password) => {
+    const pushToken = await this.generateToken()
     const { logInUser } = this.props
     if (this.validEmail && this.validPassword) {
-      logInUser(email, password)
+      logInUser(email, password, pushToken)
     }
   }
 
@@ -37,6 +40,24 @@ class Login extends React.Component {
 
   componentDidMount() {
     this.props.clearError()
+  }
+
+  // Notification Functions:
+  generateToken = async () => {
+    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== 'granted') {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      finalStatus = status;
+    }
+
+    if (finalStatus !== 'granted') {
+      return null;
+    }
+
+    const token = await Notifications.getExpoPushTokenAsync()
+    return token
   }
 
   render() {
@@ -96,7 +117,7 @@ const mapState = state => {
 
 const mapDispatch = dispatch => {
   return {
-    logInUser: (email, password) => dispatch(logInUserThunk(email, password)),
+    logInUser: (email, password, pushToken) => dispatch(logInUserThunk(email, password, pushToken)),
     clearError: () => dispatch(clearError()),
   }
 }

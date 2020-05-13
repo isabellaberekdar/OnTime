@@ -8,6 +8,7 @@ import { Event } from "../components";
 import { logout } from "../store";
 
 
+
 const Drawer = createDrawerNavigator();
 
 const Home = props => {
@@ -17,7 +18,15 @@ const Home = props => {
     navigation.navigate("Start");
     props.logout();
   };
+
   let events = [...publicEvents, ...privateEvents];
+  events = events.map(event => {
+    if (event.user) {
+      return event.event
+    }
+    return event
+  })
+
   return (
     <View style={styles.homeContainer}>
       <Text style={styles.welcomeText}>Welcome back, {firstName}</Text>

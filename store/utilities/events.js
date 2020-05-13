@@ -101,7 +101,7 @@ export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.private ? "private" : "public"
     const { data } = await axios.post(
-      `https://fair-hallway-265819.appspot.com/api/events/${type}/create`,
+      `[API-URL]/api/events/${type}/create`,
       eventInfo
     )
 
@@ -139,7 +139,7 @@ export const editEventThunk = eventInfo => async dispatch => {
     delete eventInfo["public"]
 
     const { data } = await axios.put(
-      `https://fair-hallway-265819.appspot.com/api/events/${type}/edit`,
+      `[API-URL]/api/events/${type}/edit`,
       eventInfo
     )
 
@@ -169,7 +169,7 @@ export const editEventThunk = eventInfo => async dispatch => {
 export const searchEventsThunk = query => async dispatch => {
   try {
     const { data } = await axios.put(
-      `https://fair-hallway-265819.appspot.com/api/events/public/search`,
+      `[API-URL]/api/events/public/search`,
       query
     )
     console.log(data)

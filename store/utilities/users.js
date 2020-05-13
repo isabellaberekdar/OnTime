@@ -42,15 +42,16 @@ export const clearError = () => {
 }
 
 // THUNK CREATORS
-export const logInUserThunk = (email, password) => async dispatch => {
+export const logInUserThunk = (email, password, pushToken) => async dispatch => {
   try {
     const credentials = {
       email: email,
-      password: password
+      password: password,
+      pushToken: pushToken
     }
 
     const { data } = await axios.post(
-      "https://fair-hallway-265819.appspot.com/api/login",
+      "[API-URL]/api/login",
       credentials
     )
     if (data.authError) {
@@ -81,7 +82,7 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
     }
 
     const { data } = await axios.post(
-      "https://fair-hallway-265819.appspot.com/api/register",
+      "[API-URL]/api/register",
       info,
       config
     )
