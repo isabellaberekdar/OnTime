@@ -1,6 +1,6 @@
 import React from "react"
 import { View, StyleSheet, Text } from "react-native"
-import { Button, TextInput } from "react-native-paper"
+import { Button, IconButton, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
 import {
   joinEventThunk,
@@ -125,72 +125,90 @@ class Event extends React.Component {
     const attendingIds = new Set(publicEvents.map(event => event.id))
 
     return (
-      <View style={styles.container}>
-        <Text style={styles.text}>{eventName}</Text>
-        <Text style={styles.text}>Location:</Text>
-        <Text style={styles.text}>{locationName}</Text>
-        <Text style={styles.text}>Starts:</Text>
-        <Text style={styles.text}>{formatDateEnglishEST(startDate)}</Text>
-        <Text style={styles.text}>at {convert24HourTime(time)}</Text>
-        {repeatWeekly == 1 && (
-          <>
-            <Text style={styles.text}>{"Occurs weekly on:"}</Text>
-            <Text style={styles.text}>{binaryToStringSchedule(weeklySchedule)}</Text>
-          </>
-        )}
-        {!privateEvent && (
-          <Text style={styles.text}>
-            {attendees} {attendees > 1 ? " people are" : "person is"} attending this event
-          </Text>
-        )}
-        {/* show join button if the event is not made by the user and the event is not on the user's list of events that they are attending */}
-        {userId != ownerId && !attendingIds.has(id) && !this.state.settingLocation && (
-          <Button onPress={() => this.setState({ settingLocation: true })}>Join Event</Button>
-        )}
-        {settingLocation && !attendingIds.has(id) && (
-          <>
-            <TextInput
-              label='Event Starting Location'
-              value={eventStart}
-              textContentType='location'
-              autoCapitalize='none'
-              onChangeText={eventStart => this.setState({ eventStart })}
-              mode='outlined'
-              style={styles.input}
-            />
-            <Button onPress={() => this.join()}>Join Event</Button>
-          </>
-        )}
-        {settingLocation && attendingIds.has(id) && !successfulStartLocationEdit && (
-          <>
-            <TextInput
-              label='New Start Location'
-              value={eventStart}
-              textContentType='location'
-              autoCapitalize='none'
-              onChangeText={eventStart => this.setState({ eventStart })}
-              mode='outlined'
-              style={styles.input}
-            />
-            <Button onPress={() => this.edit()}>Update Start Location</Button>
-          </>
-        )}
-        {successfulStartLocationEdit && <Text>Your start location has been updated.</Text>}
-        {/* user can edit start location for an event they have already joined, or they can leave that event */}
-        {userId != ownerId && attendingIds.has(id) && (
-          <>
-            {!this.state.settingLocation && (
-              <Button onPress={() => this.setState({ settingLocation: true })}>
-                Change Start Location
-              </Button>
+      <View style={styles.eventContainer}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>{eventName}</Text>
+        </View>
+        <View style={styles.container}>
+          <View style={styles.rowsContainer}>
+            <View style={styles.row}>
+              <IconButton icon='map-marker' size={30} />
+              <Text style={styles.text}>{locationName}</Text>
+            </View>
+            <View style={styles.row}>
+              <IconButton icon='calendar' size={30} />
+              <Text style={styles.text}>{formatDateEnglishEST(startDate)}</Text>
+            </View>
+            {repeatWeekly == 1 && (
+              <View style={styles.row}>
+                <IconButton icon='calendar' size={30} />
+                <Text style={styles.text}>{binaryToStringSchedule(weeklySchedule)}</Text>
+              </View>
             )}
-            <Button onPress={() => this.leave()}>Leave Event</Button>
-          </>
-        )}
-        {/* show delete button if the user is the event creator */}
-        {userId == ownerId && <Button onPress={() => this.delete()}>Delete Event</Button>}
-        <Text>{error}</Text>
-        <Text>{locationError}</Text>
+            <View style={styles.row}>
+              <IconButton icon='clock' size={30} />
+              <Text style={styles.text}>{convert24HourTime(time)}</Text>
+            </View>
+
+            {!privateEvent && (
+              <View style={styles.row}>
+                <IconButton icon='account' size={30} />
+                <Text style={styles.text}>
+                  {attendees} {attendees > 1 ? " people are" : "person is"} attending this event
+                </Text>
+              </View>
+            )}
+          </View>
+
+          {/* show join button if the event is not made by the user and the event is not on the user's list of events that they are attending */}
+          {userId != ownerId && !attendingIds.has(id) && !this.state.settingLocation && (
+            <Button style={styles.button} onPress={() => this.setState({ settingLocation: true })}>Join Event</Button>
+          )}
+          {settingLocation && !attendingIds.has(id) && (
+            <>
+              <TextInput
+                label='Event Starting Location'
+                value={eventStart}
+                textContentType='location'
+                autoCapitalize='none'
+                onChangeText={eventStart => this.setState({ eventStart })}
+                mode='outlined'
+                style={styles.input}
+              />
+              <Button style={styles.button} onPress={() => this.join()}>Join Event</Button>
+            </>
+          )}
+          {settingLocation && attendingIds.has(id) && !successfulStartLocationEdit && (
+            <>
+              <TextInput
+                label='New Start Location'
+                value={eventStart}
+                textContentType='location'
+                autoCapitalize='none'
+                onChangeText={eventStart => this.setState({ eventStart })}
+                mode='outlined'
+                style={styles.input}
+              />
+              <Button style={styles.button} onPress={() => this.edit()}>Update Start Location</Button>
+            </>
+          )}
+          {successfulStartLocationEdit && <Text>Your start location has been updated.</Text>}
+          {/* user can edit start location for an event they have already joined, or they can leave that event */}
+          {userId != ownerId && attendingIds.has(id) && (
+            <>
+              {!this.state.settingLocation && (
+                <Button style={styles.button} onPress={() => this.setState({ settingLocation: true })}>
+                  Change Start Location
+                </Button>
+              )}
+              <Button style={styles.button} onPress={() => this.leave()}>Leave Event</Button>
+            </>
+          )}
+          {/* show delete button if the user is the event creator */}
+          {userId == ownerId && <Button style={styles.button} onPress={() => this.delete()}>Delete Event</Button>}
+          <Text>{error}</Text>
+          <Text>{locationError}</Text>
+        </View>
       </View>
     )
   }
@@ -198,21 +216,39 @@ class Event extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     alignItems: "center",
     textAlign: "center",
-    paddingHorizontal: "5%",
-    paddingTop: "10%"
+    marginTop: "10%"
+  },
+  header: {
+    backgroundColor: "#b8d9cb",
+    height: "18%",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    paddingBottom: "2%"
   },
   text: {
-    fontSize: 20
+    fontSize: 17
   },
   headerText: {
-    fontSize: 25
+    fontSize: 30
   },
   input: {
     width: "75%"
-  }
+  },
+  row: {
+    flexDirection: "row",
+    margin: 1,
+    alignItems: "center"
+  },
+  rowsContainer: {
+    alignItems: "flex-start"
+  },
+  eventContainer: {
+    flex: 1
+  },
+  button: {marginTop: '5%'}
 })
 
 const mapState = state => {
