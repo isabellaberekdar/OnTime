@@ -108,13 +108,14 @@ const reducer = (state = initialState, action) => {
   switch (action.type) {
     case LOG_IN_USER:
       const { firstName, lastName } = action.payload.userInfo
-      const { email, id } = action.payload.user
+      const { email, id, user_info } = action.payload.user
       return {
         ...state,
         firstName: firstName,
         lastName: lastName,
         email: email,
         id: id,
+        usersInfoId: user_info,
         error: null,
         successfulLogin: true
       }
