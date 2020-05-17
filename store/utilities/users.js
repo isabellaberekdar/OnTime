@@ -4,11 +4,18 @@ import {
   REGISTER_USER,
   LOGIN_ERROR,
   REGISTRATION_ERROR,
-  CLEAR_ERROR
+  CLEAR_ERROR,
+  AUTHENTICATE_USER
 } from "../../actionTypes"
-import {ONTIME_API} from "react-native-dotenv"
+import { ONTIME_API } from "react-native-dotenv"
 
 // ACTION CREATORS
+export const authenticateUser = () => {
+  return {
+    type: AUTHENTICATE_USER
+  }
+}
+
 const logInUser = userInfo => {
   return {
     type: LOG_IN_USER,
@@ -52,10 +59,7 @@ export const logInUserThunk = (email, password, pushToken) => async dispatch => 
       pushToken
     }
 
-    const { data } = await axios.post(
-      `${ONTIME_API}/api/login`,
-      credentials
-    )
+    const { data } = await axios.post(`${ONTIME_API}/api/login`, credentials)
     if (data.authError) {
       dispatch(loginError(data.authError))
     } else if (data.error) {
@@ -83,11 +87,7 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
       }
     }
 
-    const { data } = await axios.post(
-      `${ONTIME_API}/api/register`,
-      info,
-      config
-    )
+    const { data } = await axios.post(`${ONTIME_API}/api/register`, info, config)
 
     if (data.error) {
       dispatch(registrationError(data.error))
@@ -120,7 +120,8 @@ const reducer = (state = initialState, action) => {
         id: id,
         usersInfoId: user_info,
         error: null,
-        successfulLogin: true
+        successfulLogin: true,
+        authenticated: false
       }
     case REGISTER_USER:
       return {
@@ -147,6 +148,12 @@ const reducer = (state = initialState, action) => {
         successfulLogin: false,
         successfulRegistration: false
       }
+    case AUTHENTICATE_USER:
+      return {
+        ...state,
+        authenticated: true
+      }
+
     default:
       return state
   }

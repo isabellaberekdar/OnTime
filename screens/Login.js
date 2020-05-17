@@ -2,7 +2,7 @@ import React from "react"
 import { View, StyleSheet, Text } from "react-native"
 import { Button, TextInput } from "react-native-paper"
 import { connect } from "react-redux"
-import { logInUserThunk, clearError } from "../store/utilities/users"
+import { logInUserThunk, clearError, authenticateUser } from "../store/utilities/users"
 import axios from "axios"
 import { Notifications } from "expo"
 import * as Permissions from "expo-permissions"
@@ -11,8 +11,8 @@ import { ONTIME_API } from "react-native-dotenv"
 
 class Login extends React.Component {
   state = {
-    email: "isabellaberekdar@gmail.com",
-    password: "password",
+    email: "",
+    password: "",
     userToken: "",
     verifying: false,
     successfulVerification: false,
@@ -40,7 +40,7 @@ class Login extends React.Component {
 
   verifyUser = async () => {
     const { userToken, verificationError } = this.state
-    const { usersInfoId } = this.props
+    const { usersInfoId, authenticateUser } = this.props
 
     const info = {
       usersInfoId,
@@ -49,27 +49,29 @@ class Login extends React.Component {
 
     const { data } = await axios.post(`${ONTIME_API}/api/login/authenticate`, info)
 
-    this.setState(
-      data.success ? { successfulVerification: true } : { verificationError: data.error }
-    )
+    if (data.success) {
+      this.setState({ successfulVerification: true })
+      authenticateUser()
+    } else {
+      this.setState({ verificationError: data.error })
+    }
   }
   // Notification Functions:
   generateToken = async () => {
-    /*   const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
-  let finalStatus = existingStatus
+    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+    let finalStatus = existingStatus
 
-  if (existingStatus !== "granted") {
-    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
-    finalStatus = status
-  }
+    if (existingStatus !== "granted") {
+      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+      finalStatus = status
+    }
 
-  if (finalStatus !== "granted") {
-    return null
-  }
+    if (finalStatus !== "granted") {
+      return null
+    }
 
-  const token = await Notifications.getExpoPushTokenAsync()
-  return token */
-    return undefined
+    const token = await Notifications.getExpoPushTokenAsync()
+    return token
   }
 
   // If login is successful, redirect to homepage
@@ -124,7 +126,7 @@ class Login extends React.Component {
         ) : (
           <>
             <Text style={styles.text}>
-              We have sent a one-time verification token to your email. Enter the token below to
+              We've sent a one-time verification token to your email. Enter the token below to
               finish logging in.
             </Text>
             <TextInput
@@ -162,22 +164,23 @@ const styles = StyleSheet.create({
 })
 
 const mapState = state => {
-  const id = state?.userInfo?.id
   const error = state?.userInfo?.error
   const successfulLogin = state?.userInfo?.successfulLogin
   const usersInfoId = state?.userInfo?.usersInfoId
+  const authenticated = state?.userInfo?.authenticated
   return {
-    userId: id,
     usersInfoId: usersInfoId,
     error: error,
-    successfulLogin: successfulLogin
+    successfulLogin: successfulLogin,
+    authenticated: authenticated
   }
 }
 
 const mapDispatch = dispatch => {
   return {
     logInUser: (email, password, pushToken) => dispatch(logInUserThunk(email, password, pushToken)),
-    clearError: () => dispatch(clearError())
+    clearError: () => dispatch(clearError()),
+    authenticateUser: () => dispatch(authenticateUser())
   }
 }
 

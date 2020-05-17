@@ -175,7 +175,7 @@ export const createEventThunk = eventInfo => async dispatch => {
   try {
     const type = eventInfo.private ? "private" : "public"
     const { data } = await axios.post(
-      `${ONTIME_API}/events/${type}/create`,
+      `${ONTIME_API}/api/events/${type}/create`,
       eventInfo
     )
     if (data.eventName == undefined) {
@@ -483,7 +483,6 @@ const eventsReducer = (state = initialState, action) => {
           successfulLeave: false,
         }
     case LEAVE_EVENT:
-      console.log()
       return {
         ...state,
         error: null,
