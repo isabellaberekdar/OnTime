@@ -6,6 +6,7 @@ import {
   REGISTRATION_ERROR,
   CLEAR_ERROR
 } from "../../actionTypes"
+import {ONTIME_API} from "react-native-dotenv"
 
 // ACTION CREATORS
 const logInUser = userInfo => {
@@ -42,15 +43,17 @@ export const clearError = () => {
 }
 
 // THUNK CREATORS
-export const logInUserThunk = (email, password) => async dispatch => {
+export const logInUserThunk = (email, password, pushToken) => async dispatch => {
+  console.log(ONTIME_API)
   try {
     const credentials = {
       email: email,
-      password: password
+      password: password,
+      pushToken
     }
 
     const { data } = await axios.post(
-      "https://avian-infusion-276423.ue.r.appspot.com/api/login",
+      `${ONTIME_API}/api/login`,
       credentials
     )
     if (data.authError) {
@@ -81,7 +84,7 @@ export const registerUserThunk = (email, password, firstName, lastName) => async
     }
 
     const { data } = await axios.post(
-      "https://avian-infusion-276423.ue.r.appspot.com/api/register",
+      `${ONTIME_API}/api/register`,
       info,
       config
     )

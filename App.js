@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import React from "react";
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet } from "react-native";
 
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
@@ -9,6 +9,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { Provider } from "react-redux";
 import store, { persistor } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
+
+import {Notifications as ExpoNotificationSystem} from 'expo'
+import {Audio} from 'expo-av'
 
 import {
   Home,
@@ -51,7 +54,26 @@ function DrawerMenu() {
   );
 }
 
-function App() {
+const App = props => {
+  const handleExpoNotification = async expoNotification => {
+    const soundObject = new Audio.Sound();
+    try {
+      if (expoNotification.data.status) {
+        await soundObject.loadAsync(require('./assets/sounds/event-passed.mp3'));
+      }
+      else {
+        await soundObject.loadAsync(require('./assets/sounds/event-failed.mp3'));
+      }
+      await soundObject.playAsync();
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    ExpoNotificationSystem.addListener(handleExpoNotification)
+  })
+
   return (
     <Provider store={store}>
       <PersistGate
