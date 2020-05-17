@@ -7,11 +7,12 @@ import axios from "axios"
 import { Notifications } from "expo"
 import * as Permissions from "expo-permissions"
 import Constants from "expo-constants"
+import { ONTIME_API } from "react-native-dotenv"
 
 class Login extends React.Component {
   state = {
-    email: "",
-    password: "",
+    email: "isabellaberekdar@gmail.com",
+    password: "password",
     userToken: "",
     verifying: false,
     successfulVerification: false,
@@ -46,10 +47,7 @@ class Login extends React.Component {
       userToken
     }
 
-    const { data } = await axios.post(
-      "https://avian-infusion-276423.ue.r.appspot.com/api/login/authenticate",
-      info
-    )
+    const { data } = await axios.post(`${ONTIME_API}/api/login/authenticate`, info)
 
     this.setState(
       data.success ? { successfulVerification: true } : { verificationError: data.error }
@@ -57,20 +55,21 @@ class Login extends React.Component {
   }
   // Notification Functions:
   generateToken = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
-    let finalStatus = existingStatus
+    /*   const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS)
+  let finalStatus = existingStatus
 
-    if (existingStatus !== "granted") {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
-      finalStatus = status
-    }
+  if (existingStatus !== "granted") {
+    const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS)
+    finalStatus = status
+  }
 
-    if (finalStatus !== "granted") {
-      return null
-    }
+  if (finalStatus !== "granted") {
+    return null
+  }
 
-    const token = await Notifications.getExpoPushTokenAsync()
-    return token
+  const token = await Notifications.getExpoPushTokenAsync()
+  return token */
+    return undefined
   }
 
   // If login is successful, redirect to homepage
@@ -85,6 +84,8 @@ class Login extends React.Component {
 
     // transition to verification
     if (prevProps.successfulLogin != successfulLogin && successfulLogin === true) {
+      // It navigates to homepage without this for some reason
+      navigation.navigate("Login")
       this.setState({ verifying: true })
     }
   }
