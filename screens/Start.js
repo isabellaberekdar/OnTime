@@ -24,14 +24,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: "5%",
-    paddingTop: "10%",
-  },
+    paddingTop: "10%"
+  }
 })
 
 const mapState = state => {
-  const id = state?.userInfo?.id
+  const authenticated = state?.userInfo?.authenticated
   return {
-    userLoggedIn: id != undefined,
+    userLoggedIn: authenticated
   }
 }
 
