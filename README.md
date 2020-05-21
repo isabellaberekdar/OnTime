@@ -3,6 +3,39 @@
 # How To Run
 
 
+ON PHONE:
+1. on the google playstore, download the app "Expo".
+
+ON COMPUTER:
+1. make an Expo account on expo.io
+
+2. install the expo client on terminal:
+    npm install expo-cli
+
+3. clone the repo, go to root, and run:
+    npm install
+
+4. install expo audio package:
+    expo install expo-av
+
+5. login into your expo account through the expo-cli inside your terminal by doing the following:
+    expo login
+*enter credentials created in step 1
+
+6. copy environment variables from the email sent to you titled "OnTime App ENV vaiables" into .env file
+
+TO RUN:
+1. run command:
+    npm start
+
+2. open the expo app on your phone
+
+3. A QR code should show up on the terminal. Use expo's QR functionality to scan the QR code. This will then download the app onto your phone.
+
+You can now use the app.
+
+
+
 https://reactnative.dev/docs/environment-setup
 
 
