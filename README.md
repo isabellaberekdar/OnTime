@@ -17,6 +17,7 @@ ON COMPUTER:
 
 4. install expo audio package:
     expo install expo-av
+*you may need to update yarn; yarn is the package manager prefered by expo to install packages
 
 5. login into your expo account through the expo-cli inside your terminal by doing the following:
     expo login
