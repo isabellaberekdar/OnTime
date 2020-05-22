@@ -1,5 +1,5 @@
 import "react-native-gesture-handler";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 
 import { NavigationContainer, DarkTheme } from "@react-navigation/native";
@@ -10,8 +10,8 @@ import { Provider } from "react-redux";
 import store, { persistor } from "./store";
 import { PersistGate } from "redux-persist/integration/react";
 
-import {Notifications as ExpoNotificationSystem} from 'expo'
-import {Audio} from 'expo-av'
+import { Notifications as ExpoNotificationSystem } from "expo";
+import { Audio } from "expo-av";
 
 import {
   Home,
@@ -48,7 +48,6 @@ function DrawerMenu() {
       <Drawer.Screen name="Home" component={Home} />
       <Drawer.Screen name="Public" component={PublicFilter} />
       <Drawer.Screen name="Private" component={PrivateFilter} />
-      <Drawer.Screen name="Notification" component={Notifications} />
       <Drawer.Screen name="Change Password" component={ForgotPassword} />
     </Drawer.Navigator>
   );
@@ -59,20 +58,23 @@ const App = props => {
     const soundObject = new Audio.Sound();
     try {
       if (expoNotification.data.status) {
-        await soundObject.loadAsync(require('./assets/sounds/event-passed.mp3'));
-      }
-      else {
-        await soundObject.loadAsync(require('./assets/sounds/event-failed.mp3'));
+        await soundObject.loadAsync(
+          require("./assets/sounds/event-passed.mp3")
+        );
+      } else {
+        await soundObject.loadAsync(
+          require("./assets/sounds/event-failed.mp3")
+        );
       }
       await soundObject.playAsync();
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
-    ExpoNotificationSystem.addListener(handleExpoNotification)
-  })
+    ExpoNotificationSystem.addListener(handleExpoNotification);
+  });
 
   return (
     <Provider store={store}>
@@ -106,7 +108,7 @@ const App = props => {
       </PersistGate>
     </Provider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
